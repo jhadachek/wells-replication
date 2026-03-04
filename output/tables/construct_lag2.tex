@@ -1,0 +1,47 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{New Agricultural Well Constructed per DAUCO}
+\begin{tabular*}{75%}{@{\hskip\tabcolsep\extracolsep\fill}l*{4}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}\\
+                    &\multicolumn{1}{c}{New Ag Wells per DAUCO}&\multicolumn{1}{c}{New Ag Wells per DAUCO}&\multicolumn{1}{c}{New Ag Wells per DAUCO}&\multicolumn{1}{c}{New Ag Wells per DAUCO}\\
+\hline
+Ag SW Allocation per crop acre (AF)&      -0.278\sym{*}  &      -0.284\sym{*}  &      -0.306\sym{*}  &      -0.281\sym{*}  \\
+                    &     (0.124)         &     (0.130)         &     (0.126)         &     (0.137)         \\
+[1em]
+L.Ag SW Allocation per crop acre (AF)&                     &      0.0184         &     -0.0150         &     -0.0370         \\
+                    &                     &    (0.0500)         &    (0.0436)         &    (0.0495)         \\
+[1em]
+L2.Ag SW Allocation per crop acre (AF)&                     &                     &       0.157         &       0.184\sym{*}  \\
+                    &                     &                     &    (0.0835)         &    (0.0814)         \\
+[1em]
+L3.Ag SW Allocation per crop acre (AF)&                     &                     &                     &     -0.0202         \\
+                    &                     &                     &                     &    (0.0715)         \\
+[1em]
+Harmful Degree Days &     0.00897\sym{***}&     0.00958\sym{***}&     0.00915\sym{**} &     0.00972\sym{**} \\
+                    &   (0.00202)         &   (0.00261)         &   (0.00287)         &   (0.00323)         \\
+[1em]
+L.Harmful Degree Days&                     &     0.00331         &     0.00435         &     0.00190         \\
+                    &                     &   (0.00266)         &   (0.00250)         &   (0.00251)         \\
+[1em]
+L2.Harmful Degree Days&                     &                     &     0.00447         &     0.00383         \\
+                    &                     &                     &   (0.00254)         &   (0.00266)         \\
+[1em]
+L3.Harmful Degree Days&                     &                     &                     &     0.00521\sym{*}  \\
+                    &                     &                     &                     &   (0.00239)         \\
+\hline
+Observations        &        8680         &        8343         &        7982         &        7650         \\
+N Cluster           &         310         &         309         &         307         &         306         \\
+\sum \beta\_hdd      &     0.00897         &      0.0129         &      0.0180         &      0.0207         \\
+p-value\_hdd         &  0.00000909         &    0.000326         &    0.000125         &    0.000110         \\
+\sum \beta\_{delieveries}&      -0.278         &      -0.266         &      -0.164         &      -0.154         \\
+p-value\_deliveries  &      0.0249         &      0.0481         &       0.235         &       0.338         \\
+Weights             &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &           X         &           X         &           X         &           X         \\
+Unit FE             &           X         &           X         &           X         &           X         \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Note: Dependant variable is the count of new agricultural wells per DAUCO from 1993-2020. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular*}
+\end{table}

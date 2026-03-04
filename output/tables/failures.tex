@@ -1,0 +1,35 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Probability of Domestic Well Failure}
+\begin{tabular}{l*{4}{c}}
+\hline\hline
+                    &Reduced Form         &                     &                     &          IV         \\
+                    &\multicolumn{1}{c}{(1)}         &\multicolumn{1}{c}{(2)}         &\multicolumn{1}{c}{(3)}         &\multicolumn{1}{c}{(4)}         \\
+\hline
+Ag SW Allocation per crop acre (AF)&     -0.0156\sym{*}  &     -0.0280         &                     &                     \\
+                    &   (0.00705)         &    (0.0156)         &                     &                     \\
+[1em]
+Ag SW Deliveries (AF/acre)&                     &                     &     -0.0296\sym{**} &     -0.0557\sym{**} \\
+                    &                     &                     &   (0.00987)         &    (0.0192)         \\
+[1em]
+Harmful Degree Days &                     &     0.00212\sym{*}  &                     &     0.00208\sym{*}  \\
+                    &                     &  (0.000950)         &                     &  (0.000910)         \\
+[1em]
+Growing Degree Days &                     &   0.0000998         &                     &    0.000108         \\
+                    &                     & (0.0000635)         &                     & (0.0000677)         \\
+[1em]
+Precipitation (mm)  &                     &  -0.0000902         &                     &   -0.000116         \\
+                    &                     & (0.0000557)         &                     & (0.0000656)         \\
+\hline
+Observations        &      468340         &      468082         &      468340         &      468082         \\
+Observations        &      468357         &      468099         &      468357         &      468099         \\
+N Groups            &       78068         &       78025         &       78068         &       78025         \\
+Weights             &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &           X         &           X         &           X         &           X         \\
+Unit FE             &           X         &           X         &           X         &           X         \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

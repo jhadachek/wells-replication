@@ -1,0 +1,31 @@
+\begin{table}[htbp]\centering
+\caption{Probability of Domestic Well Failure}
+\begin{tabular}{l*{5}{c}}
+\hline\hline
+                    &Reduced Form&            &            &          IV&            \\
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+\hline
+Ag SW Allocation per crop acre (AF)&      -0.016&      -0.028&            &            &            \\
+                    &     (0.007)&     (0.016)&            &            &            \\
+[1em]
+Ag SW Deliveries (AF/acre)&            &            &      -0.030&      -0.056&      -0.062\\
+                    &            &            &     (0.010)&     (0.019)&     (0.016)\\
+[1em]
+Harmful Degree Days &            &       0.002&            &       0.002&       0.004\\
+                    &            &     (0.001)&            &     (0.001)&     (0.002)\\
+[1em]
+Growing Degree Days &            &       0.000&            &       0.000&      -0.001\\
+                    &            &     (0.000)&            &     (0.000)&     (0.000)\\
+\hline
+Observations        &      468340&      468082&      468340&      468082&      106734\\
+Observations        &  468357.000&  468099.000&  468357.000&  468099.000&  106735.000\\
+N Groups            &   78068.000&   78025.000&   78068.000&   78025.000&   17792.000\\
+KP F                &            &            &      10.705&      10.289&      44.168\\
+Weights             &  Crop Acres&  Crop Acres&  Crop Acres&  Crop Acres&  Crop Acres\\
+Cluster             &       DAUCO&       DAUCO&       DAUCO&       DAUCO&       DAUCO\\
+Time FE             &           X&           X&           X&           X&           X\\
+Unit FE             &           X&           X&           X&           X&           X\\
+\hline\hline
+\multicolumn{6}{l}{\footnotesize Standard errors in parentheses}\\
+\end{tabular}
+\end{table}

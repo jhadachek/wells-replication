@@ -1,0 +1,32 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{New Agricultural Well Constructed per DAUCO}
+\begin{tabular}{l*{4}{c}}
+\hline\hline
+                    &         OLS         &                     &        PPML         &                     \\
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}\\
+                    &\multicolumn{1}{c}{New Ag Wells per DAUCO}&\multicolumn{1}{c}{New Ag Wells per DAUCO}&\multicolumn{1}{c}{New Ag Wells per DAUCO}&\multicolumn{1}{c}{New Ag Wells per DAUCO}\\
+\hline
+Ag SW Allocation per crop acre (AF)&      -7.181\sym{**} &      -6.583\sym{*}  &      -0.333\sym{*}  &      -0.278\sym{*}  \\
+                    &     (2.664)         &     (2.595)         &     (0.131)         &     (0.124)         \\
+[1em]
+Harmful Degree Days &                     &       0.115\sym{**} &                     &     0.00897\sym{***}\\
+                    &                     &    (0.0390)         &                     &   (0.00202)         \\
+[1em]
+Growing Degree Days &                     &    -0.00283         &                     &   -0.000354         \\
+                    &                     &   (0.00574)         &                     &  (0.000469)         \\
+[1em]
+Annual Precipitation&                     &     0.00409         &                     &    0.000411\sym{*}  \\
+                    &                     &   (0.00438)         &                     &  (0.000209)         \\
+\hline
+Observations        &       10416         &        9996         &        8848         &        8680         \\
+N Cluster           &         372         &         357         &         316         &         310         \\
+Weights             &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &           X         &           X         &           X         &           X         \\
+Unit FE             &           X         &           X         &           X         &           X         \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Note: Dependant variable is the count of new agricultural wells per DAUCO from 1993-2020. Columns (1) and (2) report the coefficients for the OLS model. Columns (3) and (4) report coefficients from a psuedo-poisson maximum likelihood model. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

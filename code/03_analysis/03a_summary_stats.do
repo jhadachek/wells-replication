@@ -6,7 +6,7 @@
 //
 // Inputs:  $DERIVED/final.dta         (DAUCO-year panel, ag construction/deliveries)
 //          $DERIVED/all_wells2.dta    (well-level groundwater depth panel)
-//          $DERIVED/failure_full_3_26.dta  (domestic well failures panel)
+//          $DERIVED/failures_11_23.dta     (domestic well failures panel)
 // Outputs: $TABLES/summarystats.tex
 //
 // Paper element: Summary Statistics table
@@ -117,7 +117,7 @@ esttab sumstats2 using "$TABLES/summarystats.tex", label append cells("count mea
 // PANEL 3: Domestic well failures
 ********************************************************************************
 
-use "$DERIVED/failure_full_3_26.dta", clear
+use "$DERIVED/failures_11_23.dta", clear
 
 egen wellid=group(id)
 

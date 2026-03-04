@@ -1,0 +1,28 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Changes in GW Depth}
+\begin{tabular}{l*{4}{c}}
+\toprule
+                    &\multicolumn{2}{c}{Reduced Form}           &\multicolumn{2}{c}{IV}                     \\\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+                    &\multicolumn{1}{c}{(1)}         &\multicolumn{1}{c}{(2)}         &\multicolumn{1}{c}{(3)}         &\multicolumn{1}{c}{(4)}         \\
+\midrule
+Ag SW Allocation per crop acre (AF)&      -1.967\sym{**} &      -1.533\sym{*}  &                     &                     \\
+                    &     (0.676)         &     (0.637)         &                     &                     \\
+\addlinespace
+Ag SW Deliveries per crop acre (AF)&                     &                     &      -3.681\sym{**} &      -2.914\sym{*}  \\
+                    &                     &                     &     (1.197)         &     (1.176)         \\
+\addlinespace
+Harmful Degree Days &                     &      0.0308         &                     &      0.0309\sym{**} \\
+                    &                     &    (0.0160)         &                     &    (0.0115)         \\
+\midrule
+Observations        &      561085         &      560931         &      561170         &      560931         \\
+N Groups            &                     &                     &                     &                     \\
+Weights             &Crop Acres/# wells         &Crop Acres/# wells         &Crop Acres/# wells         &Crop Acres/# wells         \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &  \checkmark         &  \checkmark         &  \checkmark         &  \checkmark         \\
+Unit FE             &  \checkmark         &  \checkmark         &  \checkmark         &  \checkmark         \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize Note: Dependent variable is the change in the depth to the groundwater from the surface (ft) from 1994-2020 at the monitoring well level. Columns (1) and (2) report results from the reduced-form OLS model. Columns (3) and (4) report the second-stage IV results, where Ag surface water allocations are used as an instrument. All regressions are weighted by the DAUCO crop acres divided by the numbr of monitoring wells and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

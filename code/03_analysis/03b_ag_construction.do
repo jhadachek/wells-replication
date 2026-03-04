@@ -31,6 +31,7 @@ drop if DAUCO==.
  xtset DAUCO year
 
 //gen crop_acres=dauco_area*247.105*dauco_pctcrop
+cap drop ag_allocation_acre
 gen ag_allocation_acre=pct_allocation_ag*vol_maximum_ag/crop_acres
 replace ag_allocation_acre=10 if ag_allocation_acre>10
 
@@ -185,7 +186,8 @@ esttab iv* boot* using "$TABLES/cf_boot.tex", replace keep(ag_deliveries_acre hd
 ********************************************************************************
 **************Appendix: Domestic Wells, Destructions, Placebo Tests**************************
 ********************************************************************************
-drop d_construction_acre
+xtset DAUCO year
+capture drop d_construction_acre
 gen d_construction_acre=d_construction/crop_acre
 
 xtreg d_construction ag_allocation_acre i.year [weight=crop_acres], fe  vce(robust)
@@ -315,19 +317,23 @@ estimates restore iv_lag0
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre]) post
 estimates store sw3
 
+capture {
 estimates restore iv_lag0
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre] + _b[L4.ag_deliveries_acre] ) post
 estimates store sw4
+}
 
+capture {
 estimates restore iv_lag0
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre] + _b[L4.ag_deliveries_acre] + _b[L5.ag_deliveries_acre]) post
 estimates store sw5
+}
 
+capture {
 estimates restore iv_lag0
-
-
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre] + _b[L4.ag_deliveries_acre] + _b[L5.ag_deliveries_acre] + _b[L6.ag_deliveries_acre]) post
 estimates store sw6
+}
 
 matrix input zero=(0 \ 0 \ 0)
 coefplot ( mat(zero), ci((2  3)) \ sw \ sw1 \ sw2 \ sw3), aseq  yline(0) noeqlabels swapnames vertical xlab( 1 "0" 2 "1" 3 "2" 4 "3" 5 "4") recast(line) lwidth(1.5) ciopts(recast(rarea) color(*0.2%80) ) ytitle("New Wells" "Cumulative Impuse Response" ) ylab(0(-5)-30) scheme(s1mono) xtitle("Years since shock")
@@ -346,15 +352,21 @@ estimates store hdd2
 estimates restore iv_lag0
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd]) post
 estimates store hdd3
+capture {
 estimates restore iv_lag0
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd] + _b[L4.hdd]) post
 estimates store hdd4
+}
+capture {
 estimates restore iv_lag0
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd] + _b[L4.hdd] + _b[L5.hdd]) post
 estimates store hdd5
+}
+capture {
 estimates restore iv_lag0
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd] + _b[L4.hdd] + _b[L5.hdd] + _b[L6.hdd]) post
 estimates store hdd6
+}
 
 coefplot ( mat(zero), ci((2  3)) \ hdd0 \ hdd1 \ hdd2 \ hdd3 ), aseq  yline(0) noeqlabels swapnames vertical xlab( 1 "0" 2 "1" 3 "2" 4 "3" 5 "4") recast(line) lwidth(1.5) ciopts(recast(rarea) color(*0.2%80) ) ytitle("New Wells" "Cumulative Impuse Response" ) ylab(0(0.05)0.4) scheme(s1mono) xtitle("Years since shock")
 
@@ -487,6 +499,7 @@ esttab rf_lag0 rf_lag1 rf_lag2 rf_lag3 using "$TABLES/construct_lag2.tex", keep(
 ********************************************************************************
 ************** SW Allocation on Ag Well Destructions**************************
 ********************************************************************************
+capture noisily {
 
 *Column 1
 xtreg destruction ag_allocation_acre L(0/3).ag_allocation_acre i.year [weight=crop_acres] if year<2021, fe  vce(robust)
@@ -551,9 +564,14 @@ estimates store net4
 
 esttab net* using "$TABLES/net_regs.tex", keep(ag_allocation_acre ag_deliveries_acre hdd gdd precip ) order(ag_allocation_acre hdd gdd precip ) label se scalar("N_clust N Cluster" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE") replace title("Net New Agricultural Well Constructed per DAUCO")  mgroups("OLS" "PPML", pattern(1 0 1 0)) note("Note: Dependent variable is the count of destroyed agricultural wells per DAUCO from 1993-2020. Columns (1) and (2) report the coefficients for the OLS model. Columns (3) and (4) report coefficients from a psuedo-poisson maximum likelihood model. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.")
 
+} // end capture: destruction section
+
 *******************************************************************************
 *********************** Construction: DDAY29 **********************************
 *******************************************************************************
+
+cap confirm file "$DERIVED/all_weather25.dta"
+if _rc == 0 {
 
 merge 1:1 year DAUCO using "$DERIVED/all_weather25.dta"
 
@@ -572,3 +590,8 @@ estimates store boot_lvl_dday29
 
 
 esttab iv_dday29 boot_lvl_dday29 using "$TABLES/construct_dday29.tex", keep(ag_allocation_acre ag_deliveries_acre dday29 gdd precip ) order(ag_allocation_acre dday29 gdd precip ) label se scalar("N_clust N Cluster" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE") replace title(" New Agricultural Well Constructed per DAUCO")  note("Note: Dependent variable is the count of new agricultural wells per DAUCO from 1993-2020.  All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.")
+
+}
+else {
+    di "NOTE: all_weather25.dta not found — skipping dday29 robustness tables."
+}
