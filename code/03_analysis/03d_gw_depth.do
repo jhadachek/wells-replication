@@ -120,6 +120,12 @@ capture restore
 
 ************************************Robustness Checks**********************************
 
+// Re-generate w and sort panel (restore cleared the preserve block's state)
+bysort DAUCO year: gen numb_wells2 = _N
+gen w = crop_acres / numb_wells2
+sort wellid year
+xtset wellid year
+
 rename ag_deliv_acre ag_deliveries_acre
 
 ivreghdfe diff_depth hdd gdd precip (ag_deliveries_acre = ag_allocation_acre) [weight=w] if year<2021, abs(wellid year) cluster(DAUCO)
@@ -249,10 +255,10 @@ estadd local weights "Crop Acres/# wells"
 estadd local time "\checkmark"
 estadd local individual "\checkmark"
 
-lincom hdd+L.hdd+L2.hdd+L3.hdd+L4.hdd+L5.hdd+L6.hdd
-estadd scalar cumu1=r(estimate)
-estadd scalar se1=r(se)
-lincom ag_deliveries_acre+L.ag_deliveries_acre+L2.ag_deliveries_acre+L3.ag_deliveries_acre+L4.ag_deliveries_acre+L5.ag_deliveries_acre+L6.ag_deliveries_acre
+capture lincom hdd+L.hdd+L2.hdd+L3.hdd+L4.hdd+L5.hdd+L6.hdd
+capture estadd scalar cumu1=r(estimate)
+capture estadd scalar se1=r(se)
+capture lincom ag_deliveries_acre+L.ag_deliveries_acre+L2.ag_deliveries_acre+L3.ag_deliveries_acre+L4.ag_deliveries_acre+L5.ag_deliveries_acre+L6.ag_deliveries_acre
 
 
 
@@ -268,15 +274,21 @@ estimates store sw2
 estimates restore iv_lag6
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre]) post
 estimates store sw3
+capture {
 estimates restore iv_lag6
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre] + _b[L4.ag_deliveries_acre]) post
 estimates store sw4
+}
+capture {
 estimates restore iv_lag6
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre] + _b[L4.ag_deliveries_acre] + _b[L5.ag_deliveries_acre]) post
 estimates store sw5
+}
+capture {
 estimates restore iv_lag6
 margins, expression(_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre] + _b[L2.ag_deliveries_acre]+ _b[L3.ag_deliveries_acre] + _b[L4.ag_deliveries_acre] + _b[L5.ag_deliveries_acre] + _b[L6.ag_deliveries_acre]) post
 estimates store sw6
+}
 
 
 estimates restore iv_lag6
@@ -291,15 +303,21 @@ estimates store hdd2
 estimates restore iv_lag6
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd]) post
 estimates store hdd3
+capture {
 estimates restore iv_lag6
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd] + _b[L4.hdd]) post
 estimates store hdd4
+}
+capture {
 estimates restore iv_lag6
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd] + _b[L4.hdd] + _b[L5.hdd]) post
 estimates store hdd5
+}
+capture {
 estimates restore iv_lag6
 margins, expression(_b[hdd]+_b[L.hdd] + _b[L2.hdd]+ _b[L3.hdd] + _b[L4.hdd] + _b[L5.hdd] + _b[L6.hdd]) post
 estimates store hdd6
+}
 
 estadd scalar cumu2=r(estimate)
 estadd scalar se2=r(se)
@@ -311,12 +329,12 @@ estadd local weights "Crop Acres/# wells"
 estadd local time "\checkmark"
 estadd local individual "\checkmark"
 
-lincom hdd+L.hdd+L2.hdd+L3.hdd+L4.hdd+L5.hdd+L6.hdd+L7.hdd
-estadd scalar cumu1=r(estimate)
-estadd scalar se1=r(se)
-lincom ag_deliveries_acre+L.ag_deliveries_acre+L2.ag_deliveries_acre+L3.ag_deliveries_acre+L4.ag_deliveries_acre+L5.ag_deliveries_acre+L6.ag_deliveries_acre+L7.ag_deliveries_acre
-estadd scalar cumu2=r(estimate)
-estadd scalar se2=r(se)
+capture lincom hdd+L.hdd+L2.hdd+L3.hdd+L4.hdd+L5.hdd+L6.hdd+L7.hdd
+capture estadd scalar cumu1=r(estimate)
+capture estadd scalar se1=r(se)
+capture lincom ag_deliveries_acre+L.ag_deliveries_acre+L2.ag_deliveries_acre+L3.ag_deliveries_acre+L4.ag_deliveries_acre+L5.ag_deliveries_acre+L6.ag_deliveries_acre+L7.ag_deliveries_acre
+capture estadd scalar cumu2=r(estimate)
+capture estadd scalar se2=r(se)
 
 
 ivreghdfe diff_depth L(0/8).hdd L(0/8).gdd L(0/8).precip (L(0/8).ag_deliveries_acre= L(0/8).ag_allocation_acre) [weight=w] if year<2021, abs(wellid year) cluster(DAUCO)
