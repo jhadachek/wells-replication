@@ -1,0 +1,30 @@
+\begin{table}[htbp]\centering
+\caption{Agricultural SW Deliveries: First Stage Results}
+\begin{tabular}{l*{4}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}\\
+                    &\multicolumn{1}{c}{Ag SW Deliveries}&\multicolumn{1}{c}{Ag SW Deliveries}&\multicolumn{1}{c}{Ag SW Deliveries}&\multicolumn{1}{c}{Ag SW Allocations}\\
+\hline
+Ag SW Allocation per crop acre (AF)&       0.550&       0.531&            &            \\
+                    &    (0.0565)&    (0.0540)&            &            \\
+[1em]
+Harmful Degree Days &            &   -0.000353&    -0.00140&    -0.00197\\
+                    &            &   (0.00172)&   (0.00238)&   (0.00131)\\
+[1em]
+Growing Degree Days &            &    0.000184&   0.0000708&   -0.000213\\
+                    &            & (0.0000431)& (0.0000665)&  (0.000138)\\
+[1em]
+Annual Precipitation&            &   -0.000461&   -0.000759&   -0.000560\\
+                    &            &  (0.000202)&  (0.000151)&  (0.000204)\\
+\hline
+Observations        &        9996&        9996&        9996&        9996\\
+N Cluster           &         357&         357&         357&         357\\
+F Stat              &       94.83&       54.22&       16.57&       3.624\\
+Weights             &  Crop Acres&  Crop Acres&  Crop Acres&  Crop Acres\\
+Cluster             &       DAUCO&       DAUCO&       DAUCO&       DAUCO\\
+Time FE             &           X&           X&           X&           X\\
+Unit FE             &           X&           X&           X&           X\\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Note: Dependant variable is Ag SW deliveries per crop acre in levels from 1993-2021. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.}\\
+\end{tabular}
+\end{table}

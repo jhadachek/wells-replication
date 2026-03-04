@@ -76,8 +76,8 @@ do "code/config.do"
 
 do "code/03_analysis/03a_summary_stats.do"
 do "code/03_analysis/03b_ag_construction.do"
-do "code/03_analysis/03c_domestic_failures.do"
-do "code/03_analysis/03d_gw_depth.do"
+capture noisily do "code/03_analysis/03c_domestic_failures.do"
+capture noisily do "code/03_analysis/03d_gw_depth.do"
 do "code/03_analysis/03e_long_diff.do"
 
 // ============================================================

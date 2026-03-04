@@ -1,0 +1,47 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{New Agricultural Well Constructed per DAUCO}
+\begin{tabular}{l*{4}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}\\
+                    &\multicolumn{1}{c}{Well Failure Reported}&\multicolumn{1}{c}{Well Failure Reported}&\multicolumn{1}{c}{Well Failure Reported}&\multicolumn{1}{c}{Well Failure Reported}\\
+\hline
+Ag SW Deliveries (AF/acre)&     -0.0548\sym{**} &     -0.0397\sym{**} &      -0.178\sym{**} &    0.000778         \\
+                    &    (0.0191)         &    (0.0131)         &    (0.0597)         &    (0.0277)         \\
+[1em]
+L.Ag SW Deliveries (AF/acre)&                     &     -0.0677\sym{*}  &      -0.177\sym{*}  &     -0.0296         \\
+                    &                     &    (0.0265)         &    (0.0691)         &    (0.0278)         \\
+[1em]
+L2.Ag SW Deliveries (AF/acre)&                     &                     &      0.0257         &     -0.0216         \\
+                    &                     &                     &    (0.0168)         &    (0.0122)         \\
+[1em]
+L3.Ag SW Deliveries (AF/acre)&                     &                     &                     &     0.00908         \\
+                    &                     &                     &                     &   (0.00649)         \\
+[1em]
+Harmful Degree Days &     0.00205\sym{*}  &     0.00157\sym{*}  &     0.00142\sym{*}  &   0.0000432         \\
+                    &  (0.000899)         &  (0.000759)         &  (0.000634)         & (0.0000781)         \\
+[1em]
+L.Harmful Degree Days&                     &    -0.00333\sym{*}  &    -0.00187         &    0.000179         \\
+                    &                     &   (0.00166)         &   (0.00116)         &  (0.000168)         \\
+[1em]
+L2.Harmful Degree Days&                     &                     &   -0.000906         &   -0.000166         \\
+                    &                     &                     &  (0.000612)         &  (0.000161)         \\
+[1em]
+L3.Harmful Degree Days&                     &                     &                     &   0.0000875         \\
+                    &                     &                     &                     &  (0.000150)         \\
+\hline
+Observations        &      476748         &      476748         &      397290         &      317832         \\
+N Cluster           &         342         &         342         &         342         &         342         \\
+$\sum \beta\_{hdd}$  &     0.00205         &    -0.00176         &    -0.00135         &    0.000144         \\
+{hdd}$              &      0.0228         &       0.106         &       0.364         &       0.745         \\
+$\sum \beta\_{deliveries}$&     -0.0548         &      -0.107         &      -0.329         &     -0.0414         \\
+{deliveries}$       &     0.00415         &    0.000413         &     0.00529         &       0.453         \\
+Weights             &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &           X         &           X         &           X         &           X         \\
+Unit FE             &           X         &           X         &           X         &           X         \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Note: Dependant variable is the count of new agricultural wells per DAUCO from 1993-2020. Columns (1) and (2) report the coefficients for the OLS model. Columns (3) and (4) report coefficients from a psuedo-poisson maximum likelihood model. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}

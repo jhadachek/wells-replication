@@ -24,7 +24,7 @@
 clear all
 // Paths set via code/config.do (run from replication/ directory)
 
-use "$DERIVED/failure_full_6_8.dta", clear
+capture use "$DERIVED/failure_full_6_8.dta", clear
 
 
 use "$DERIVED/failures_11_23.dta", clear
@@ -39,6 +39,7 @@ egen wellid=group(id dist)
 gen crop_acres=dauco_area*247.105*dauco_pctcrop
 gen total_acres = dauco_area*247.105
 gen pct_cropacres=crop_acres/total_acres
+cap drop ag_allocation_acre
 gen ag_allocation_acre=pct_allocation_ag*vol_maximum_ag/crop_acres
 replace ag_allocation_acre=10 if ag_allocation_acre>10
 
@@ -227,6 +228,9 @@ estadd scalar p2=r(p)
 
 
 esttab iv_lag0 iv_lag1 iv_lag2 iv_lag3 using "$TABLES/failure_lag.tex", keep(ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre L3.ag_deliveries_acre hdd L.hdd L2.hdd L3.hdd ) order(ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre L3.ag_deliveries_acre hdd L.hdd L2.hdd L3.hdd) label se scalar("N_clust N Cluster"  "cum1 $\sum \beta_{hdd}$" "p1 $p_{hdd}$" "cum2 $\sum \beta_{deliveries}$" "p2 $p_{deliveries}$" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE" )  replace title("New Agricultural Well Constructed per DAUCO") note("Note: Dependant variable is the count of new agricultural wells per DAUCO from 1993-2020. Columns (1) and (2) report the coefficients for the OLS model. Columns (3) and (4) report coefficients from a psuedo-poisson maximum likelihood model. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.")
+
+// Restore original variable name for subsequent demographic sections
+capture rename ag_deliveries_acre ag_deliv_acre
 
 gen pctnonwhite=100-pct_white
 
@@ -441,7 +445,7 @@ coefplot (iv_l1 \ iv_l2 \ iv_l3 \ iv_l4,  msize(2) color("black")), aseq keep(ag
 graph export "$FIGURES/sw_lowi.png", replace
 
 
-esttab iv_lvl3 iv_low iv_high iv_nonwhite iv_white using "$TABLES/failures_demo2.tex", keep(ag_deliv_acre  hdd ) order(ag_deliv_acre  hdd gdd precip ) label se mgroups("Pooled" "Income" "Race", pattern(1 0 1 0)) mtitles("" "Low" "High" "Nonwhite" "White") scalar("N_g N Groups" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE")  replace title("Probability of Domestic Well Failure")
+capture noisily esttab iv_lvl3 iv_low iv_high iv_nonwhite iv_white using "$TABLES/failures_demo2.tex", keep(ag_deliv_acre  hdd ) order(ag_deliv_acre  hdd gdd precip ) label se mgroups("Pooled" "Income" "Race", pattern(1 0 1 0)) mtitles("" "Low" "High" "Nonwhite" "White") scalar("N_g N Groups" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE")  replace title("Probability of Domestic Well Failure")
 
 
 gen treat_SB5351=0

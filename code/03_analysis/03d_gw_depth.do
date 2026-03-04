@@ -38,6 +38,7 @@ bysort DAUCO: egen pct90=pctile(diff_depth), p(90)
 
 *Tranform variables
 gen crop_acres=dauco_area*247.105*dauco_pctcrop
+cap drop ag_allocation_acre
 gen ag_allocation_acre=pct_allocation_ag*vol_maximum_ag/crop_acres
 replace ag_allocation_acre=10 if ag_allocation_acre>10
 
@@ -92,7 +93,7 @@ estadd local time "\checkmark"
 estadd local individual "\checkmark"
 estimates store rf_lvl2
 
-restore
+// restore  // NOTE: removed — IV models must also run on filtered data (inside preserve)
 
 
 ivreghdfe diff_depth (ag_deliv_acre=ag_allocation_acre)  [weight=w], abs(wellid year) cluster (DAUCO)
@@ -102,19 +103,19 @@ estadd local individual "\checkmark"
 estimates store iv_lvl
 
 
-ivreghdfe diff_depth (ag_deliveries_acre=ag_allocation_acre) hdd gdd precip* [weight=w] if year<2021, abs(wellid year) cluster (DAUCO)
+ivreghdfe diff_depth (ag_deliv_acre=ag_allocation_acre) hdd gdd precip* [weight=w] if year<2021, abs(wellid year) cluster (DAUCO)
 estadd local weights "Crop Acres/# wells"
 estadd local time "\checkmark"
 estadd local individual "\checkmark"
 estimates store iv_lvl_ppt
 
-restore
+restore  // closes preserve at line 71
 
 
 
 esttab rf* iv* using "$TABLES/wells_adjweight2.tex",booktabs keep(ag_allocation_acre ag_deliv_acre hdd ) order(ag_allocation_acre ag_deliv_acre hdd) label se mgroups("Reduced Form" "IV", pattern(1 0  1 0 0) prefix(\multicolumn{@span}{c}{) suffix(}) span erepeat(\cmidrule(lr){@span})) nomtitles scalar("N_g N Groups" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE") replace title("Changes in GW Depth") note("Note: Dependent variable is the change in the depth to the groundwater from the surface (ft) from 1994-2020 at the monitoring well level. Columns (1) and (2) report results from the reduced-form OLS model. Columns (3) and (4) report the second-stage IV results, where Ag surface water allocations are used as an instrument. All regressions are weighted by the DAUCO crop acres divided by the numbr of monitoring wells and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.")
 
-restore
+capture restore
 
 
 ************************************Robustness Checks**********************************

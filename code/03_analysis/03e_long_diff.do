@@ -20,7 +20,7 @@
 // PART 1: Compute long-difference variables from DAUCO panel
 ********************************************************************************
 
-use "$DERIVED/final3.dta", clear
+use "$DERIVED/final.dta", clear
 
 
 drop if DAUCO==.
@@ -28,6 +28,7 @@ drop if DAUCO==.
 xtset DAUCO year
 
 gen crop_acres=dauco_area*247.105*dauco_pctcrop
+cap drop ag_allocation_acre
 gen ag_allocation_acre=pct_allocation_ag*vol_maximum_ag/crop_acres
 replace ag_allocation_acre=10 if ag_allocation_acre>10
 

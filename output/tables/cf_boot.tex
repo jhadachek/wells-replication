@@ -1,0 +1,35 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{New Agricultural Well Constructed per DAUCO: SW Deliveries}
+\begin{tabular}{l*{4}{c}}
+\hline\hline
+                    &        2SLS         &                     &  CF/Poisson         &                     \\
+                    &\multicolumn{1}{c}{(1)}         &\multicolumn{1}{c}{(2)}         &\multicolumn{1}{c}{(3)}         &\multicolumn{1}{c}{(4)}         \\
+\hline
+Ag SW Deliveries per crop acre (AF)&      -13.06\sym{**} &      -12.39\sym{**} &      -0.690\sym{**} &      -0.620\sym{*}  \\
+                    &     (4.584)         &     (4.750)         &     (0.239)         &     (0.273)         \\
+[1em]
+Harmful Degree Days &                     &       0.111\sym{***}&                     &      0.0128\sym{***}\\
+                    &                     &    (0.0329)         &                     &   (0.00263)         \\
+[1em]
+Growing Degree Days &                     &   -0.000552         &                     &   -0.000493         \\
+                    &                     &   (0.00593)         &                     &  (0.000496)         \\
+[1em]
+Annual Precipitation&                     &    -0.00162         &                     &   0.0000121         \\
+                    &                     &   (0.00743)         &                     &  (0.000435)         \\
+[1em]
+$\hat{\mu}$         &                     &                     &       0.732         &       0.767\sym{*}  \\
+                    &                     &                     &     (0.390)         &     (0.365)         \\
+\hline
+Observations        &       10416         &        9996         &        8848         &        8680         \\
+N Groups            &         372         &         357         &         316         &         310         \\
+Weights             &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         \\
+KP F Stat           &       94.90         &       96.97         &                     &                     \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &           X         &           X         &           X         &           X         \\
+Unit FE             &           X         &           X         &           X         &           X         \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize Note: Dependant variable is the count of new agricultural wells per DAUCO from 1993-2021. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses. Columns (3) and (4) standard errors are calculated using 500 bootstrap simulations, clustered at the DAUCO level.}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}
