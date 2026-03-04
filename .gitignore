@@ -1,0 +1,57 @@
+# ==============================================================================
+# .gitignore for Wells et al. Replication Package
+# ==============================================================================
+
+# Large data files — stored in OneDrive, not git
+data/derived/
+data/raw/*.csv
+data/raw/*.dta
+data/raw/**/*.dta
+data/raw/**/*.csv
+data/raw/**/*.zip
+data/raw/**/*.shp
+data/raw/**/*.dbf
+data/raw/**/*.prj
+data/raw/**/*.shx
+data/raw/**/*.cpg
+
+# Stata working files
+*.dta.bak
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Rdata
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
+*.run.xml
+*-blx.bib
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
