@@ -50,6 +50,7 @@ do "code/config.do"
 // do "code/01_clean/01c_gw_quality_stata.do"
 // do "code/01_clean/01e_weather.do"
 // do "code/01_clean/01f_well_completions.R"  // via shell Rscript
+// shell Rscript "code/01_clean/01g_clean_wells.R"
 
 // ============================================================
 // STAGE 2: GIS raster processing — NOT REPRODUCIBLE
@@ -63,10 +64,15 @@ do "code/config.do"
 
 // ============================================================
 // STAGE 3: Merge panels (R)
-// Produces: data/derived/all_wells*.dta, final*.dta, failures*.dta
+// Produces: data/derived/gwdepth_well_panel*.dta, dauco_construction_panel.dta,
+//           domestic_failures_panel.dta, weather_dauco_annual.dta
 // ============================================================
 
 // shell Rscript "code/02_merge/02_merge_panels.R"
+// shell Rscript "code/02_merge/02a_dauco_panel.R"
+// shell Rscript "code/02_merge/02b_failures_panel.R"
+// shell Rscript "code/02_merge/02c_depth_panel.R"
+// shell Rscript "code/02_merge/02d_failures_depth.R"
 
 // ============================================================
 // STAGE 4: Analysis + tables (Stata)
