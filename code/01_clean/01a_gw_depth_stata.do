@@ -10,7 +10,7 @@
 //          $RAW_CNRA/measurements.csv, stations.csv
 //          $GIS_GWDEPTH/asc_years_balanced/*.asc  (provided; see Stage 2 note)
 //
-// Outputs: $DERIVED/depth_allrawobs.dta
+// Outputs: $DERIVED/gwdepth_raw_obs.dta
 //          $DERIVED/farmgrid_gwdepth_wide.dta
 //          $DERIVED/farmgrid_gwdepth_long.dta
 //          $DERIVED/farmgrid_gwdepth_means_unbalanced.dta
@@ -158,7 +158,7 @@ keep wellid latitude longitude dtw year // stn_id wellnumber time_diff
 sort wellid year
 isid wellid year
 compress
-save "$DERIVED/depth_allrawobs.dta", replace
+save "$DERIVED/gwdepth_raw_obs.dta", replace
 
 // Export all data for each year
 preserve

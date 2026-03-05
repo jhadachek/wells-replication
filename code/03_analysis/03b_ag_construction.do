@@ -5,7 +5,7 @@
 //          Produces the first stage and main construction tables.
 // Source:  dauco_tables_2024.do
 //
-// Inputs:  $DERIVED/final.dta  (DAUCO-year panel)
+// Inputs:  $DERIVED/dauco_construction_panel.dta  (DAUCO-year panel)
 //          code/03_analysis/03f_bootstrap.do  (bootstrap utility)
 //
 // Outputs: $TABLES/fs_weather.tex      (first stage)
@@ -23,7 +23,7 @@ clear all
 
 // Paths set via code/config.do (run from replication/ directory)
 
-use "$DERIVED/final.dta", clear
+use "$DERIVED/dauco_construction_panel.dta", clear
 
 
 drop if DAUCO==.
@@ -552,10 +552,10 @@ esttab net* using "$TABLES/net_regs.tex", keep(ag_allocation_acre ag_deliveries_
 *********************** Construction: DDAY29 **********************************
 *******************************************************************************
 
-cap confirm file "$DERIVED/all_weather25.dta"
+cap confirm file "$DERIVED/weather_dauco_annual.dta"
 if _rc == 0 {
 
-merge 1:1 year DAUCO using "$DERIVED/all_weather25.dta"
+merge 1:1 year DAUCO using "$DERIVED/weather_dauco_annual.dta"
 
 
 
@@ -575,5 +575,5 @@ esttab iv_dday29 boot_lvl_dday29 using "$TABLES/construct_dday29.tex", keep(ag_a
 
 }
 else {
-    di "NOTE: all_weather25.dta not found — skipping dday29 robustness tables."
+    di "NOTE: weather_dauco_annual.dta not found — skipping dday29 robustness tables."
 }

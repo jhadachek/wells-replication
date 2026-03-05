@@ -5,7 +5,7 @@
 //          SJV subsample, distributed lag, and demographic balance table.
 // Source:  domestic_table_25.do
 //
-// Inputs:  $DERIVED/failures_11_23.dta      (domestic well failure panel)
+// Inputs:  $DERIVED/domestic_failures_panel.dta      (domestic well failure panel)
 //          $RAW/SB535DACresultsdatadictionary_F_2022.xlsx
 //          $RAW/nhgis0006_ds249_20205_tract.csv
 //
@@ -24,7 +24,7 @@
 clear all
 // Paths set via code/config.do (run from replication/ directory)
 
-use "$DERIVED/failures_11_23.dta", clear
+use "$DERIVED/domestic_failures_panel.dta", clear
 *dist: Distance from well failure coordinates to nearest neighbor well completion report coordinates
 *Replaces missing values for domestic wells that never failure_full_3_26
 replace dist=999 if dist==.
@@ -55,7 +55,7 @@ label var ag_allocation_acre "Ag SW Allocation per crop acre (AF)"
 
 label var l_ag_deliv_acre "log(Ag SW Deliveries per crop acre (AF))"
 label var ag_deliv_acre "Ag SW Deliveries (AF/acre)"
-label var treat "Well Failure Reported"
+label var failure "Well Failure Reported"
 
 label var hdd "Harmful Degree Days"
 label var gdd "Growing Degree Days"
@@ -69,12 +69,12 @@ label var precip "Precipitation (mm)"
 bysort wellid: egen min_date=min(date)
 keep if date==min_date | date==.
 bysort wellid year: gen count=_N
-tab treat count
+tab failure count
 
 *Keep only the first observation of duplicate entries
 bysort wellid year: gen count2=_n
 keep if count2==1
-tab treat count
+tab failure count
 
 *Final is a balanced panel of all domestic wells, with unique failure reported.
  xtset wellid year
@@ -86,20 +86,20 @@ tab treat count
 ********************************************************************************
 
 
-reghdfe treat ag_allocation_acre [aweight=crop_acres] if year>2014 & year<2021 & pump!=1 & DateDestruct==., a(wellid year) cluster(DAUCO)
+reghdfe failure ag_allocation_acre [aweight=crop_acres] if year>2014 & year<2021 & pump!=1 & DateDestruct==., a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
 estimates store rf_lvl1
 
-reghdfe treat ag_allocation_acre hdd gdd precip if year>2014 & year<2021 & pump!=1 & DateDestruct==. [aweight=crop_acres], a(wellid year) cluster(DAUCO)
+reghdfe failure ag_allocation_acre hdd gdd precip if year>2014 & year<2021 & pump!=1 & DateDestruct==. [aweight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
 estimates store rf_lvl3
 
 
-ivreghdfe treat (ag_deliv_acre=ag_allocation_acre)  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [aweight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure (ag_deliv_acre=ag_allocation_acre)  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [aweight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -107,7 +107,7 @@ estimates store iv_lvl1
 
 
 
-ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], abs(wellid year) cluster(DAUCO)
+ivreghdfe failure (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], abs(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -125,7 +125,7 @@ esttab rf* iv* using "$TABLES/failures.tex", keep(ag_allocation_acre  ag_deliv_a
 gen sjv = inlist(county_name, "Stanislaus", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "Tulare", "San Joaquin", "Los Angeles")
 egen sjv_year=group(sjv year)
 
-ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. & sjv==1 [weight=crop_acres], a(wellid sjv_year) cluster(DAUCO)
+ivreghdfe failure (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. & sjv==1 [weight=crop_acres], a(wellid sjv_year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -137,7 +137,7 @@ esttab rf* iv_lvl1 iv_lvl3 iv_lvl5 using "$TABLES/failures_sjv.tex", keep(ag_all
 *******Distributed Lags*******
 rename ag_deliv_acre ag_deliveries_acre
 
-xi: xtivreg2 treat hdd gdd precip (ag_deliveries_acre = ag_allocation_acre) i.year [weight=crop_acres] if year<2021 & year>2014, fe cluster(DAUCO)
+xi: xtivreg2 failure hdd gdd precip (ag_deliveries_acre = ag_allocation_acre) i.year [weight=crop_acres] if year<2021 & year>2014, fe cluster(DAUCO)
 estimates store iv_lag0
 estadd local time "X"
 estadd local individual "X"
@@ -152,7 +152,7 @@ estadd scalar p2=r(p)
 
 
 
-xi: xtivreg2 treat hdd L.hdd gdd precip (ag_deliveries_acre L.ag_deliveries_acre= ag_allocation_acre L.ag_allocation_acre) i.year [weight=crop_acres] if year<2021& year>2014, fe cluster(DAUCO)
+xi: xtivreg2 failure hdd L.hdd gdd precip (ag_deliveries_acre L.ag_deliveries_acre= ag_allocation_acre L.ag_allocation_acre) i.year [weight=crop_acres] if year<2021& year>2014, fe cluster(DAUCO)
 estimates store iv_lag1
 estadd local time "X"
 estadd local individual "X"
@@ -166,7 +166,7 @@ estadd scalar cum2=_b[ag_deliveries_acre]+_b[L.ag_deliveries_acre]
 estadd scalar p2=r(p)
 
 
-xi: xtivreg2 treat hdd L.hdd L2.hdd gdd precip (ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre= ag_allocation_acre L.ag_allocation_acre L2.ag_allocation_acre) i.year [weight=crop_acres] if year<2021 & year>2014, fe cluster(DAUCO)
+xi: xtivreg2 failure hdd L.hdd L2.hdd gdd precip (ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre= ag_allocation_acre L.ag_allocation_acre L2.ag_allocation_acre) i.year [weight=crop_acres] if year<2021 & year>2014, fe cluster(DAUCO)
 estimates store iv_lag2
 estadd local time "X"
 estadd local individual "X"
@@ -181,7 +181,7 @@ estadd scalar p2=r(p)
 
 
 
-xi: xtivreg2 treat hdd L.hdd L2.hdd L3.hdd gdd precip (ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre L3.ag_deliveries_acre= ag_allocation_acre L.ag_allocation_acre L2.ag_allocation_acre L3.ag_allocation_acre) i.year [weight=crop_acres] if year<2021 & year>2014, fe cluster(DAUCO)
+xi: xtivreg2 failure hdd L.hdd L2.hdd L3.hdd gdd precip (ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre L3.ag_deliveries_acre= ag_allocation_acre L.ag_allocation_acre L2.ag_allocation_acre L3.ag_allocation_acre) i.year [weight=crop_acres] if year<2021 & year>2014, fe cluster(DAUCO)
 estimates store iv_lag3
 estadd local time "X"
 estadd local individual "X"
@@ -222,37 +222,37 @@ replace pop=1 if POP2010>median_population
 
 
 
-gen treat_lowincome=treat*lowincome2
-gen treat_highincome=treat*(1-lowincome2)
+gen failure_lowincome=failure*lowincome2
+gen failure_highincome=failure*(1-lowincome2)
 
-gen treat_nonwhite=treat*nonwhite
-gen treat_white=treat*(1-nonwhite)
+gen failure_nonwhite=failure*nonwhite
+gen failure_white=failure*(1-nonwhite)
 
-gen treat1=0
-replace treat1=treat if qtile_nonwhite==1
+gen failure1=0
+replace failure1=failure if qtile_nonwhite==1
 
-gen treat2=0
-replace treat2=treat if qtile_nonwhite==2
+gen failure2=0
+replace failure2=failure if qtile_nonwhite==2
 
-gen treat3=0
-replace treat3=treat if qtile_nonwhite==3
+gen failure3=0
+replace failure3=failure if qtile_nonwhite==3
 
-gen treat4=0
-replace treat4=treat if qtile_nonwhite==4
+gen failure4=0
+replace failure4=failure if qtile_nonwhite==4
 
-gen treat_l1=0
-replace treat_l1=treat if qtile_lowincome==1
+gen failure_l1=0
+replace failure_l1=failure if qtile_lowincome==1
 
-gen treat_l2=0
-replace treat_l2=treat if qtile_lowincome==2
+gen failure_l2=0
+replace failure_l2=failure if qtile_lowincome==2
 
-gen treat_l3=0
-replace treat_l3=treat if qtile_lowincome==3
+gen failure_l3=0
+replace failure_l3=failure if qtile_lowincome==3
 
-gen treat_l4=0
-replace treat_l4=treat if qtile_lowincome==4
+gen failure_l4=0
+replace failure_l4=failure if qtile_lowincome==4
 
-ivreghdfe treat1 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure1 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -264,7 +264,7 @@ replace beta_sw_nonwhite=_b[ag_deliv_acre] if qtile_nonwhite==1
 replace beta_hdd_nonwhite=_b[hdd] if qtile_nonwhite==1
 
 
-ivreghdfe treat2 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(year wellid) cluster(DAUCO)
+ivreghdfe failure2 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(year wellid) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -273,7 +273,7 @@ estimates store iv_2
 replace beta_sw_nonwhite=_b[ag_deliv_acre] if qtile_nonwhite==2
 replace beta_hdd_nonwhite=_b[hdd] if qtile_nonwhite==2
 
-ivreghdfe treat3 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(year wellid) cluster(DAUCO)
+ivreghdfe failure3 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(year wellid) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -282,7 +282,7 @@ estimates store iv_3
 replace beta_sw_nonwhite=_b[ag_deliv_acre] if qtile_nonwhite==3
 replace beta_hdd_nonwhite=_b[hdd] if qtile_nonwhite==3
 
-ivreghdfe treat4 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure4 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -290,7 +290,7 @@ estimates store iv_4
 replace beta_sw_nonwhite=_b[ag_deliv_acre] if qtile_nonwhite==4
 replace beta_hdd_nonwhite=_b[hdd] if qtile_nonwhite==4
 
-ivreghdfe treat (c.ag_deliv_acre#qtile_nonwhite=c.ag_allocation_acre#qtile_nonwhite) c.hdd#qtile_nonwhite gdd c.precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [w=crop_acres],a(wellid year) cluster(DAUCO)
+ivreghdfe failure (c.ag_deliv_acre#qtile_nonwhite=c.ag_allocation_acre#qtile_nonwhite) c.hdd#qtile_nonwhite gdd c.precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [w=crop_acres],a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -328,7 +328,7 @@ coefplot (iv_1 \ iv_2 \ iv_3 \ iv_4,  msize(2) color("black")), aseq keep(ag_del
 graph export "$FIGURES/sw_nonwhite.png", replace
 
 
-ivreghdfe treat_l1 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure_l1 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -341,7 +341,7 @@ replace beta_hdd_lowincome=_b[hdd] if qtile_lowincome==1
 
 
 
-ivreghdfe treat_l2 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure_l2 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -351,7 +351,7 @@ replace beta_sw_lowincome=_b[ag_deliv_acre] if qtile_lowincome==2
 replace beta_hdd_lowincome=_b[hdd] if qtile_lowincome==2
 
 
-ivreghdfe treat_l3 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure_l3 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -361,7 +361,7 @@ replace beta_sw_lowincome=_b[ag_deliv_acre] if qtile_lowincome==3
 replace beta_hdd_lowincome=_b[hdd] if qtile_lowincome==3
 
 
-ivreghdfe treat_l4 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure_l4 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip  if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -370,7 +370,7 @@ replace beta_sw_lowincome=_b[ag_deliv_acre] if qtile_lowincome==4
 replace beta_hdd_lowincome=_b[hdd] if qtile_lowincome==4
 
 
-ivreghdfe treat (c.ag_deliv_acre#qtile_lowincome=c.ag_allocation_acre#qtile_lowincome) c.hdd#qtile_lowincome gdd c.precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [w=crop_acres],a(wellid year) cluster(DAUCO)
+ivreghdfe failure (c.ag_deliv_acre#qtile_lowincome=c.ag_allocation_acre#qtile_lowincome) c.hdd#qtile_lowincome gdd c.precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [w=crop_acres],a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -413,26 +413,26 @@ graph export "$FIGURES/sw_lowi.png", replace
 capture noisily esttab iv_lvl3 iv_low iv_high iv_nonwhite iv_white using "$TABLES/failures_demo2.tex", keep(ag_deliv_acre  hdd ) order(ag_deliv_acre  hdd gdd precip ) label se mgroups("Pooled" "Income" "Race", pattern(1 0 1 0)) mtitles("" "Low" "High" "Nonwhite" "White") scalar("N_g N Groups" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE")  replace title("Probability of Domestic Well Failure")
 
 
-gen treat_SB5351=0
-replace treat_SB5351=treat if SB535==1
+gen failure_SB5351=0
+replace failure_SB5351=failure if SB535==1
 
-gen treat_SB5350=0
-replace treat_SB5350=treat if SB535==0
+gen failure_SB5350=0
+replace failure_SB5350=failure if SB535==0
 
-xi: xtivreg2 treat_SB5351 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], fe cluster(DAUCO)
+xi: xtivreg2 failure_SB5351 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], fe cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
 estimates store SB5351
 
 
-xi: xtivreg2 treat_SB5350 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], fe cluster(DAUCO)
+xi: xtivreg2 failure_SB5350 (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], fe cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
 estimates store SB5350
 
-ivreghdfe treat (c.ag_deliv_acre#SB535=c.ag_allocation_acre#SB535) c.hdd#SB535 gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure (c.ag_deliv_acre#SB535=c.ag_allocation_acre#SB535) c.hdd#SB535 gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -459,7 +459,7 @@ graph export "$FIGURES/hdd_SB535.png", replace
 ********************************************************************************
 xtile depth_qtile=TotalCompletedDepth3, nquantiles(4)
 
-ivreghdfe treat (c.ag_deliv_acre#depth_qtile=c.ag_allocation_acre#depth_qtile) c.hdd#depth_qtile gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
+ivreghdfe failure (c.ag_deliv_acre#depth_qtile=c.ag_allocation_acre#depth_qtile) c.hdd#depth_qtile gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -480,9 +480,9 @@ graph export "$FIGURES/sw_depth_het.png", replace
 // Wrapped in capture noisily so 03c runs cleanly without the external dataset.
 capture noisily {
 
-merge m:1 year DAUCO using "$DERIVED/all_weather25.dta"
+merge m:1 year DAUCO using "$DERIVED/weather_dauco_annual.dta"
 
-ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) dday29 gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], abs(wellid year) cluster(DAUCO)
+ivreghdfe failure (ag_deliv_acre=ag_allocation_acre) dday29 gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], abs(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
@@ -618,22 +618,22 @@ restore
 ***********************DAUCO level regs**********************************************
 
 preserve
-collapse (sum) treat count2 (mean) pct_cropacres crop_acres ag_allocation_acre ag_deliv_acre hdd gdd precip, by(DAUCO dau_code psa_code county_code year)
+collapse (sum) failure count2 (mean) pct_cropacres crop_acres ag_allocation_acre ag_deliv_acre hdd gdd precip, by(DAUCO dau_code psa_code county_code year)
 gen weights=count2*crop_acres
-gen fr=treat/count2
-sum fr treat
+gen fr=failure/count2
+sum fr failure
 
 
-ivreghdfe treat ag_allocation_acre [pw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
+ivreghdfe failure ag_allocation_acre [pw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
 est store rf_fr1
 
-ivreghdfe treat ag_allocation_acre hdd gdd precip [aw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
+ivreghdfe failure ag_allocation_acre hdd gdd precip [aw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
 est store rf_fr2
 
-ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) [pw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
+ivreghdfe failure (ag_deliv_acre=ag_allocation_acre) [pw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
 est store iv_fr1
 
-ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) hdd gdd precip [aw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
+ivreghdfe failure (ag_deliv_acre=ag_allocation_acre) hdd gdd precip [aw=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
 est store iv_fr2
 
 

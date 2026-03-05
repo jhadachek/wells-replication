@@ -3,10 +3,10 @@
 # Purpose: Groundwater depth change maps and agricultural well location maps
 # Source:  depth_map.R, water_wells_map.R
 #
-# Inputs:  DERIVED/all_wells2.dta
+# Inputs:  DERIVED/gwdepth_well_panel.dta
 #          RAW_DIR/gis/DAU_County_2018.shp
 #          DERIVED/allocations_aggregate_dauco.dta
-#          DERIVED/well_construction2.csv
+#          DERIVED/well_construction.csv
 #
 # Outputs: FIGURES/ag_sw_cross.png
 #          FIGURES/ag_wells_cross2.png
@@ -29,10 +29,10 @@ source(here::here("code", "config.R"))
 
 pacman::p_load(dplyr, tmap, haven, tidyr, ggplot2, sf)
 
-all_wells2 <- read_dta(file.path(DERIVED, "all_wells2.dta"))
+gwdepth_well_panel <- read_dta(file.path(DERIVED, "gwdepth_well_panel.dta"))
 
-grid<-expand.grid(wellid=unique(all_wells2$wellid), year=unique(all_wells2$year))%>%
-  left_join(all_wells2)
+grid<-expand.grid(wellid=unique(gwdepth_well_panel$wellid), year=unique(gwdepth_well_panel$year))%>%
+  left_join(gwdepth_well_panel)
 
 grid_final<-grid%>%
   arrange(wellid, year)%>%
@@ -45,7 +45,7 @@ grid_final<-grid%>%
   filter(pct90>abs(diff_depth))
 
 
-by_year<-all_wells2%>%
+by_year<-gwdepth_well_panel%>%
   group_by(wellid)%>%
   filter(year>=1981 & year<2021)%>%
   mutate(n=n())%>%
@@ -63,7 +63,7 @@ ggplot(by_year)+geom_line(aes(year, dtw), color="darkblue", lwd=2)+
 
 
 
-long_change<-all_wells2%>%
+long_change<-gwdepth_well_panel%>%
   filter(year %in% c(1981, 1982,1983, 2018,2019,2020))%>%
   select(wellid,DAUCO, year, dtw)%>%
   mutate(period=1)%>%
@@ -177,7 +177,7 @@ ag_sw
 tmap_save(ag_sw, file.path(FIGURES, "ag_sw_cross.png"), width=7, height=5)
 
 
-well_construction <- read_csv(file.path(DERIVED, "well_construction2.csv"))%>%
+well_construction <- read_csv(file.path(DERIVED, "well_construction.csv"))%>%
   #Filters out Monitoring Wells
   filter(type=="Agriculture")
 

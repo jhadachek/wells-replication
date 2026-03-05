@@ -6,7 +6,7 @@
 #          Adapted from permit_construction_date.R.
 #
 # NOTE: This script produces a DESCRIPTIVE FIGURE, not a cleaned panel dataset.
-#       The derived well construction files (well_construction2.csv etc.) used
+#       The derived well construction files (well_construction.csv etc.) used
 #       in the analysis panels are provided in data/derived/ and were produced
 #       by an earlier cleaning pipeline that is no longer available in full.
 #

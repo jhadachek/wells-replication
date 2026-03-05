@@ -4,10 +4,10 @@
 # Source:  fresno_failures.R, monitoring wells.R
 #
 # Inputs:  RAW_DIR/householdwatersupplyshortagereportingsystemdata.csv
-#          DERIVED/well_construction2.csv
+#          DERIVED/well_construction.csv
 #          RAW_DIR/gis/PWS_shp/SABL_Public_211025.shp
 #          RAW_DIR/nhgis0006_ds249_20205_tract.csv
-#          DERIVED/depth_allrawobs.dta
+#          DERIVED/gwdepth_raw_obs.dta
 #
 # Outputs: FIGURES/fresno_pws.png
 #          FIGURES/sjv_density.png
@@ -36,7 +36,7 @@ pacman::p_load(readr,tmap,sf, ggplot2, dplyr, ggmap, lubridate, tidyr, stringr, 
 
 HouseholdWater<- read_csv(file.path(RAW_DIR, "householdwatersupplyshortagereportingsystemdata.csv"))
 
-domestic<- read_csv(file.path(DERIVED, "well_construction2.csv"))%>%
+domestic<- read_csv(file.path(DERIVED, "well_construction.csv"))%>%
   filter(type=="Domestic")%>%
   st_as_sf(coords=c("DecimalLongitude","DecimalLatitude"))%>%
   mutate(year=year(DateWorkEnded))%>%
@@ -187,7 +187,7 @@ filter(NAME %in% c("San Joaquin","Kings","Merced","Stanislaus","Fresno","Madera"
 # SECTION 2: Monitoring Well Locations (from monitoring wells.R)
 # ==============================================================================
 
-depth_allrawobs <- read_dta(file.path(DERIVED, "depth_allrawobs.dta"))
+depth_allrawobs <- read_dta(file.path(DERIVED, "gwdepth_raw_obs.dta"))
 
 depth_allrawobs<-depth_allrawobs%>%
   select(latitude, longitude, wellid)%>%

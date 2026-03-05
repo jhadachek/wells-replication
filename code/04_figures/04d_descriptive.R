@@ -13,9 +13,9 @@
 #            well_failure_prob.R    — failure probability by demographic subgroup
 #            diff_trends_simulation — parallel trends simulation figure
 #
-# Inputs:  DERIVED/well_construction2.csv        (domestic + ag well locations)
-#          DERIVED/all_wells2.dta                (monitoring well depth panel)
-#          DERIVED/failures_11_23.dta            (domestic failure panel)
+# Inputs:  DERIVED/well_construction.csv         (domestic + ag well locations)
+#          DERIVED/gwdepth_well_panel.dta         (monitoring well depth panel)
+#          DERIVED/domestic_failures_panel.dta   (domestic failure panel)
 #          RAW_DIR/nhgis0006_csv/nhgis0006_ds249_20205_tract.csv
 #          RAW_DIR/gis/DAU_County_2018/DAU_County_2018.shp
 #          RAW_DIR/water_balance/CA-DWR-WaterBalance-Level2-DP-1000-{year}-DAUCO.csv
@@ -37,7 +37,7 @@
 #          - raw_dtw_measurements.R had no ggsave() call in the original;
 #            output save added here.
 #          - recharge_coef.R read from final2.dta (superseded); updated to
-#            final.dta (canonical) but flag: variable names may differ.
+#            dauco_construction_panel.dta (canonical).
 #
 # Date:    2026-03-03
 # ==============================================================================
@@ -67,8 +67,8 @@ library(MASS)
 # Source: domestic_map.R
 # ==============================================================================
 
-well_construction2 <- read_csv(
-  file.path(DERIVED, "well_construction2.csv")
+well_construction <- read_csv(
+  file.path(DERIVED, "well_construction.csv")
 )
 
 demographics <- read_csv(
@@ -105,7 +105,7 @@ tracts <- tracts %>%
   ) %>%
   mutate(density = Pop / (ALAND + AWATER))
 
-domestic <- well_construction2 %>%
+domestic <- well_construction %>%
   filter(type == "Domestic") %>%
   distinct(DecimalLatitude, DecimalLongitude, .keep_all = TRUE) %>%
   st_as_sf(coords = c("DecimalLongitude", "DecimalLatitude")) %>%
@@ -143,14 +143,14 @@ tmap_save(domestic_map, filename = file.path(FIGURES, "domestic_map.png"))
 #       Reproduced what was complete; incomplete fragments commented out below.
 # ==============================================================================
 
-all_wells2 <- read_dta(file.path(DERIVED, "all_wells2.dta"))
+gwdepth_well_panel <- read_dta(file.path(DERIVED, "gwdepth_well_panel.dta"))
 
 dau <- st_read(
   file.path(RAW_DIR, "gis", "DAU_County_2018", "DAU_County_2018.shp")
 ) %>%
   mutate(DAUCO = as.numeric(DAUCO))
 
-diff_depth_2006 <- all_wells2[, 1:6] %>%
+diff_depth_2006 <- gwdepth_well_panel[, 1:6] %>%
   filter(year >= 1993 & year <= 2020) %>%
   arrange(wellid, year) %>%
   group_by(wellid) %>%
@@ -235,13 +235,13 @@ ggsave(
 # ==============================================================================
 # SECTION 4: Recharge Coefficient from CA Water Balance
 # Source: recharge_coef.R
-# Note: Original used final2.dta; updated to canonical final.dta.
-#       Verify that dau_name and dauco_pctcrop variables exist in final.dta.
+# Note: Original used final2.dta; updated to canonical dauco_construction_panel.dta.
+#       Verify that dau_name and dauco_pctcrop variables exist.
 # ==============================================================================
 
 yearlist <- seq(2002, 2020, 1)[-16]  # exclude 2017 (missing)
 
-final <- read_dta(file.path(DERIVED, "final.dta")) %>%
+final <- read_dta(file.path(DERIVED, "dauco_construction_panel.dta")) %>%
   dplyr::select(dau_name, dauco_pctcrop, dauco_area) %>%
   mutate(dauco_acres = dauco_pctcrop * dauco_area * 247.11) %>%
   group_by(dau_name) %>%
@@ -305,7 +305,7 @@ recharge_byyear <- recharge_all %>%
 # Source: well_dist.R
 # ==============================================================================
 
-ag_wells <- well_construction2 %>%
+ag_wells <- well_construction %>%
   filter(type == "Agriculture") %>%
   filter(year(DateWorkEnded) > 1993) %>%
   group_by(DecimalLongitude, DecimalLatitude) %>%
@@ -314,7 +314,7 @@ ag_wells <- well_construction2 %>%
   st_set_crs("+proj=longlat +datum=WGS84 +no_defs") %>%
   ungroup()
 
-domestic_wells <- well_construction2 %>%
+domestic_wells <- well_construction %>%
   filter(year(DateWorkEnded) > 1993) %>%
   filter(type == "Domestic") %>%
   group_by(DecimalLongitude, DecimalLatitude) %>%
@@ -371,16 +371,16 @@ ggsave(buffer_hist, filename = file.path(FIGURES, "buffer_hist.png"), height = 4
 # Source: well_failure_prob.R
 # ==============================================================================
 
-failures_11_23 <- read_dta(file.path(DERIVED, "failures_11_23.dta"))
+domestic_failures_panel <- read_dta(file.path(DERIVED, "domestic_failures_panel.dta"))
 
-failures_well <- failures_11_23 %>%
+failures_well <- domestic_failures_panel %>%
   mutate(
     population  = WhitePop / (pct_white / 100),
     crop_acres  = dauco_area * dauco_pctcrop * 247.11
   ) %>%
   group_by(id) %>%
   summarize(
-    treat      = max(treat, na.rm = TRUE),
+    failure    = max(failure, na.rm = TRUE),
     pct_white  = first(pct_white),
     pct_pov    = first(pct_pov),
     well_depth = first(TotalCompletedDepth3),
@@ -406,8 +406,8 @@ names(labels_demo) <- c("lowincome", "nonwhite", "cropped", "populated")
 
 dat <- data.frame()
 for (i in demolist) {
-  t1 <- t.test(failures_well$treat[failures_well[[i]] == 1], conf.level = 0.95)
-  t2 <- t.test(failures_well$treat[failures_well[[i]] == 0], conf.level = 0.95)
+  t1 <- t.test(failures_well$failure[failures_well[[i]] == 1], conf.level = 0.95)
+  t2 <- t.test(failures_well$failure[failures_well[[i]] == 0], conf.level = 0.95)
   temp <- data.frame(
     Demographic  = rep(i, 2),
     median       = c("Above", "Below"),

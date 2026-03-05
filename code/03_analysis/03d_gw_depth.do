@@ -5,7 +5,7 @@
 //          Includes robustness checks with lagged specifications.
 // Source:  gwdepth_table_2024.do
 //
-// Inputs:  $DERIVED/all_wells2.dta  (monitoring well × year panel)
+// Inputs:  $DERIVED/gwdepth_well_panel.dta  (monitoring well × year panel)
 //
 // Outputs: $TABLES/wells_adjweight2.tex   (main IV results)
 //          $TABLES/gwdepth_lag.tex        (distributed lag robustness)
@@ -20,7 +20,7 @@ clear all
 
 // Paths set via code/config.do (run from replication/ directory)
 
-use "$DERIVED/all_wells2.dta", clear
+use "$DERIVED/gwdepth_well_panel.dta", clear
 
 
 
@@ -116,8 +116,8 @@ esttab rf* iv* using "$TABLES/wells_adjweight2.tex",booktabs keep(ag_allocation_
 
 ************************************Robustness Checks**********************************
 
-// Use all_wells5.dta — expanded panel with lagged weather and pre-computed weights (w)
-use "$DERIVED/all_wells5.dta", clear
+// Use gwdepth_well_panel_lagged.dta — expanded panel with lagged weather and pre-computed weights (w)
+use "$DERIVED/gwdepth_well_panel_lagged.dta", clear
 
 // Generate transformed variables needed for robustness regressions
 gen crop_acres = dauco_area * 247.105 * dauco_pctcrop

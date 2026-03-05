@@ -5,7 +5,7 @@
 #          agricultural water delivery and failure rates
 # Source:  SB535_tracts.R
 #
-# Inputs:  DERIVED/failures_11_23.dta
+# Inputs:  DERIVED/domestic_failures_panel.dta
 #          RAW_DIR/SB535DACresultsdatadictionary_F_2022.xlsx
 #
 # Outputs: DERIVED/failures_SB535.dta
@@ -23,7 +23,7 @@ source(here::here("code", "config.R"))
 
 pacman::p_load(dplyr, MASS, ggplot2, hrbrthemes, haven, tigris)
 
-df <- read_dta(file.path(DERIVED, "failures_11_23.dta"))
+df <- read_dta(file.path(DERIVED, "domestic_failures_panel.dta"))
 
 # Parse each character string into numeric vector
 df$lon <- sapply(df$id, function(x) as.numeric(strsplit(gsub("[c()]", "", x), ",")[[1]])[1])
@@ -81,12 +81,12 @@ failures<-failures_SB535%>%
 
 
 
-feols(data=failures, treat~hdd+dday8+precip|id+year|ag_deliv_acre~ag_allocation_acre, cluster="DAUCO", weights=failures$crop_acres)
+feols(data=failures, failure~hdd+dday8+precip|id+year|ag_deliv_acre~ag_allocation_acre, cluster="DAUCO", weights=failures$crop_acres)
 
 
 failures_dauco<-failures%>%
   group_by(DAUCO, year)%>%
-  summarize(failures=sum(treat),
+  summarize(failures=sum(failure),
             count=n(),
             crop_acres=mean(crop_acres, na.rm=T),
             ag_allocation_acre=mean(ag_allocation_acre, na.rm=T),

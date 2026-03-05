@@ -4,9 +4,9 @@
 //          depth, and domestic well failures panels.
 // Source:  summarystats.do
 //
-// Inputs:  $DERIVED/final.dta         (DAUCO-year panel, ag construction/deliveries)
-//          $DERIVED/all_wells2.dta    (well-level groundwater depth panel)
-//          $DERIVED/failures_11_23.dta     (domestic well failures panel)
+// Inputs:  $DERIVED/dauco_construction_panel.dta  (DAUCO-year panel, ag construction/deliveries)
+//          $DERIVED/gwdepth_well_panel.dta        (well-level groundwater depth panel)
+//          $DERIVED/domestic_failures_panel.dta   (domestic well failures panel)
 // Outputs: $TABLES/summarystats.tex
 //
 // Paper element: Summary Statistics table
@@ -21,7 +21,7 @@
 // PANEL 1: Agricultural construction and surface water deliveries
 ********************************************************************************
 
-use "$DERIVED/final.dta"
+use "$DERIVED/dauco_construction_panel.dta"
 
 drop if DAUCO==.
 
@@ -60,7 +60,7 @@ esttab  sumstats1 using "$TABLES/summarystats.tex", label replace cells("count m
 // PANEL 2: Well-level groundwater depth
 ********************************************************************************
 
-use "$DERIVED/all_wells2.dta", clear
+use "$DERIVED/gwdepth_well_panel.dta", clear
 
 xtset wellid year
 
@@ -100,7 +100,7 @@ esttab sumstats2 using "$TABLES/summarystats.tex", label append cells("count mea
 // PANEL 3: Domestic well failures
 ********************************************************************************
 
-use "$DERIVED/failures_11_23.dta", clear
+use "$DERIVED/domestic_failures_panel.dta", clear
 
 egen wellid=group(id)
 
@@ -137,23 +137,23 @@ bysort wellid: egen min_dist=min(dist)
 
 
 keep if dist1==min_dist| dist==.
-tab treat
+tab failure
 bysort wellid year: gen count=_N
 tab count
 bysort wellid: egen min_date=min(date)
 keep if date==min_date | date==.
 drop count
 bysort wellid year: gen count=_N
-tab treat
+tab failure
 tab count
 bysort wellid year: gen count2=_n
 keep if count2==1
-tab treat
+tab failure
 tab count
 
-label var treat "Domestic Well Failure (0,1)"
+label var failure "Domestic Well Failure (0,1)"
 
-estpost tabstat treat  [weight=crop_acres] if year<2021 & year>2014, statistics(count mean sd min max) columns(statistics)
+estpost tabstat failure  [weight=crop_acres] if year<2021 & year>2014, statistics(count mean sd min max) columns(statistics)
 estimates store sumstats3
 
 // .html output omitted (not needed for AEA package)
