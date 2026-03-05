@@ -6,7 +6,7 @@
 # Inputs:  RAW_DIR/householdwatersupplyshortagereportingsystemdata.csv
 #          DERIVED/well_construction.csv
 #          RAW_DIR/gis/PWS_shp/SABL_Public_211025.shp
-#          RAW_DIR/nhgis0006_ds249_20205_tract.csv
+#          RAW_DIR/nhgis0006_csv/nhgis0006_ds249_20205_tract.csv
 #          DERIVED/gwdepth_raw_obs.dta
 #
 # Outputs: FIGURES/fresno_pws.png
@@ -85,7 +85,7 @@ failures_sf<-st_set_crs(failures_sf, "+proj=longlat +datum=WGS84 +no_defs")
 counties<-tigris::counties(state="California")
 tracts<-tigris::tracts(state="California")
 
-demographics<- read_csv(file.path(RAW_DIR, "nhgis0006_ds249_20205_tract.csv"))%>%
+demographics<- read_csv(file.path(RAW_DIR, "nhgis0006_csv", "nhgis0006_ds249_20205_tract.csv"))%>%
   filter(STATE=="California")%>%
   dplyr::select(GISJOIN,TRACTA, AMPVE001, AMP3E012, AMR8E001, AMR5E001, AMR5E002, AMPWE002)%>%
   rename(Pop=AMPVE001, HispPop=AMP3E012, MedianIncom=AMR8E001, HH=AMR5E001, HH_pov=AMR5E002, WhitePop=AMPWE002)%>%
