@@ -28,7 +28,6 @@ RAW_SCHLENKER_CA <- file.path(RAW_DIR, "weather_schlenker_ca")
 
 # GIS subdirectories
 GIS_GWDEPTH <- file.path(DERIVED, "gis", "groundwater_depth")
-GIS_GWQUAL  <- file.path(DERIVED, "gis", "groundwater_quality")
 
 message("ROOT:    ", ROOT)
 message("RAW:     ", RAW_DIR)

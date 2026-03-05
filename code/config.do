@@ -34,7 +34,6 @@ global RAW_SCHLENKER_CA  "$RAW/weather_schlenker_ca"
 
 // ---- Subdirectories (derived data) ----
 global GIS_GWDEPTH  "$DERIVED/gis/groundwater_depth"
-global GIS_GWQUAL   "$DERIVED/gis/groundwater_quality"
 
 // ---- Confirm globals ----
 di "ROOT:    $ROOT"

@@ -47,7 +47,7 @@ do "code/config.do"
 // ============================================================
 
 // do "code/01_clean/01a_gw_depth_stata.do"
-// do "code/01_clean/01c_gw_quality_stata.do"
+// [01c_gw_quality_stata.do removed — gw quality outputs not used in analysis]
 // do "code/01_clean/01e_weather.do"
 // do "code/01_clean/01f_well_completions.R"  // via shell Rscript
 // shell Rscript "code/01_clean/01g_clean_wells.R"
@@ -60,7 +60,7 @@ do "code/config.do"
 // ============================================================
 
 // shell python "code/01_clean/01b_gw_depth_python.py"   // NOT REPRODUCIBLE
-// shell python "code/01_clean/01d_gw_quality_python.py"  // NOT REPRODUCIBLE
+// [01d_gw_quality_python.py removed — gw quality outputs not used in analysis]
 
 // ============================================================
 // STAGE 3: Merge panels (R)
