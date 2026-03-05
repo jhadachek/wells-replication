@@ -24,9 +24,6 @@
 clear all
 // Paths set via code/config.do (run from replication/ directory)
 
-capture use "$DERIVED/failure_full_6_8.dta", clear
-
-
 use "$DERIVED/failures_11_23.dta", clear
 *dist: Distance from well failure coordinates to nearest neighbor well completion report coordinates
 *Replaces missing values for domestic wells that never failure_full_3_26
@@ -95,14 +92,6 @@ estadd local time "X"
 estadd local individual "X"
 estimates store rf_lvl1
 
-/*
-xtreg treat ag_allocation_acre hdd gdd precip i.year if year<2021  [weight=crop_acres], fe cluster(DAUCO)
-estadd local weights "Crop Acres"
-estadd local time "X"
-estadd local individual "X"
-estimates store rf_lvl2
-*/
-
 reghdfe treat ag_allocation_acre hdd gdd precip if year>2014 & year<2021 & pump!=1 & DateDestruct==. [aweight=crop_acres], a(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
@@ -115,17 +104,6 @@ estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
 estimates store iv_lvl1
-
-
-
-/*
-
-xi: xtivreg2 treat (ag_deliv_acre=ag_allocation_acre) hdd gdd precip i.year if year<2021 [weight=crop_acres], fe cluster(DAUCO)
-estadd local weights "Crop Acres"
-estadd local time "X"
-estadd local individual "X"
-estimates store iv_lvl2
-*/
 
 
 
@@ -144,17 +122,7 @@ esttab rf* iv* using "$TABLES/failures.tex", keep(ag_allocation_acre  ag_deliv_a
 **************2. SW Allocation and Deliveries on Well Failures: SJV***********************
 ********************************************************************************
 
-gen sjv=0
-replace sjv=1 if county_name == "Stanislaus"
-replace sjv=1 if county_name == "Fresno"
-replace sjv=1 if county_name == "Kern"
-replace sjv=1 if county_name =="Kings"
-replace sjv=1 if county_name == "Madera"
-replace sjv=1 if county_name =="Mariposa"
-replace sjv=1 if county_name =="Merced"
-replace sjv=1 if county_name =="Tulare"
-replace sjv=1 if county_name =="San Joaquin"
-replace sjv=1 if county_name =="Los Angeles"
+gen sjv = inlist(county_name, "Stanislaus", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "Tulare", "San Joaquin", "Los Angeles")
 egen sjv_year=group(sjv year)
 
 ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. & sjv==1 [weight=crop_acres], a(wellid sjv_year) cluster(DAUCO)
@@ -228,9 +196,6 @@ estadd scalar p2=r(p)
 
 
 esttab iv_lag0 iv_lag1 iv_lag2 iv_lag3 using "$TABLES/failure_lag.tex", keep(ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre L3.ag_deliveries_acre hdd L.hdd L2.hdd L3.hdd ) order(ag_deliveries_acre L.ag_deliveries_acre L2.ag_deliveries_acre L3.ag_deliveries_acre hdd L.hdd L2.hdd L3.hdd) label se scalar("N_clust N Cluster"  "cum1 $\sum \beta_{hdd}$" "p1 $p_{hdd}$" "cum2 $\sum \beta_{deliveries}$" "p2 $p_{deliveries}$" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE" )  replace title("New Agricultural Well Constructed per DAUCO") note("Note: Dependant variable is the count of new agricultural wells per DAUCO from 1993-2020. Columns (1) and (2) report the coefficients for the OLS model. Columns (3) and (4) report coefficients from a psuedo-poisson maximum likelihood model. All regressions are weighted by the DAUCO crop acres and include year and DAUCO fixed effects. Standard errors are clustered at the DAUCO level and are reported in parentheses.")
-
-// Restore original variable name for subsequent demographic sections
-capture rename ag_deliveries_acre ag_deliv_acre
 
 gen pctnonwhite=100-pct_white
 
@@ -511,9 +476,11 @@ graph export "$FIGURES/sw_depth_het.png", replace
 
 
 
-********************************************************************************
-merge m:1 year DAUCO using "E:\Research Docs\Schlenker Data\California\dd_calculated\all_weather25.dta
+// NOTE: dday29 block requires licensed Schlenker extreme-heat data (not in replication package).
+// Wrapped in capture noisily so 03c runs cleanly without the external dataset.
+capture noisily {
 
+merge m:1 year DAUCO using "$DERIVED/all_weather25.dta"
 
 ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) dday29 gdd precip i.year if year<2021 & year>2014 & pump!=1 & DateDestruct==. [weight=crop_acres], abs(wellid year) cluster(DAUCO)
 estadd local weights "Crop Acres"
@@ -521,85 +488,11 @@ estadd local time "X"
 estadd local individual "X"
 estimates store iv_dday29
 
-
 esttab iv_dday29 using "$TABLES/failures_dday29.tex", keep(ag_allocation_acre  ag_deliv_acre  dday29 gdd precip ) order(ag_allocation_acre  ag_deliv_acre  dday29 gdd precip ) label se  scalar("N_g N Groups" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE")  replace title("Probability of Domestic Well Failure") nomtitles
 
-
-********************************************************************************
-**HDD**
-preserve
-
-reghdfe  hdd  ag_allocation_acre ag_deliv_acre gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. , a(wellid year) resid
-
-predict res, r
-
-gen res2=res^2
-
-collapse (sum) res2, by(qtile_lowincome)
-
-egen total_res=sum(res2)
-gen pct_res=res2/total_res
-
-twoway bar pct_ qtile_lowincome, ytitle("% of Total Variation") xtitle("% Low Income Quartile")
-graph export "$FIGURES/hdd_lowicome_variation.png", replace
-
-restore
+} // end capture: dday29 requires licensed Schlenker data
 
 
-preserve
-
-reghdfe  hdd  ag_allocation_acre ag_deliv_acre gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. , a(wellid year) resid
-
-predict res, r
-
-gen res2=res^2
-
-collapse (sum) res2, by(qtile_nonwhite)
-
-egen total_res=sum(res2)
-gen pct_res=res2/total_res
-
-twoway bar pct_ qtile_nonwhite, ytitle("% of Total Variation") xtitle("% Non-White Quartile")
-graph export "$FIGURES/hdd_nonwhite_variation.png", replace
-
-restore
-
-**SW**
-preserve
-
-reghdfe ag_allocation_acre  hdd  gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. , a(wellid year) resid
-
-predict res, r
-
-gen res2=res^2
-
-collapse (sum) res2, by(qtile_lowincome)
-
-egen total_res=sum(res2)
-gen pct_res=res2/total_res
-
-twoway bar pct_ qtile_lowincome, ytitle("% of Total Variation") xtitle("% Low Income Quartile")
-graph export "$FIGURES/sw_lowincome_variation.png", replace
-
-restore
-
-preserve
-
-reghdfe ag_allocation_acre hdd gdd precip if year<2021 & year>2014 & pump!=1 & DateDestruct==. , a(wellid year) resid
-
-predict res, r
-
-gen res2=res^2
-
-collapse (sum) res2, by(qtile_nonwhite)
-
-egen total_res=sum(res2)
-gen pct_res=res2/total_res
-
-twoway bar pct_ qtile_nonwhite, ytitle("% of Total Variation") xtitle("% Non White Quartile")
-graph export "$FIGURES/sw_nonwhite_variation.png", replace
-
-restore
 
 
 *******************************************************************************
@@ -707,7 +600,7 @@ restore
 preserve
 keep if year==2021
 gen domestic_count=1
-drop if qtile_lowincome==.
+drop if qtile_nonwhite==.
 collapse (sum) domestic_count (mean) beta_hdd crop_acres iqr_hdd cond_effect_hdd_nonwhite mean_crop_acres beta_hdd_nonwhite, by(qtile_nonwhite)
 
 gen iqr_hdd_round=round(iqr_hdd, 0.01)
@@ -744,41 +637,6 @@ ivreghdfe treat (ag_deliv_acre=ag_allocation_acre) hdd gdd precip [aw=weights] i
 est store iv_fr2
 
 
-
-
-/*
-ppmlhdfe treat ag_allocation_acre [weight=weights] if year>2014 & year<2021, a(county_code year) cluster(DAUCO)
-est store ppml_fr3
-
-
-ppmlhdfe treat ag_allocation_acre hdd gdd precip [weight=weights] if year>2014 & year<2021, a(county_code year) cluster(DAUCO)
-est store ppml_fr4
-
-
-ppmlhdfe treat ag_allocation_acre hdd gdd precip [weight=weights] if year>2014 & year<2021, a(DAUCO year) cluster(DAUCO)
-est store ppml_dauco
-estadd local individual "DAUCO"
-
-ppmlhdfe treat ag_allocation_acre hdd gdd precip [weight=weights] if year>2014 & year<2021, a(dau_code year) cluster(DAUCO)
-est store ppml_dau
-estadd local individual "DAU"
-
-
-ppmlhdfe treat ag_allocation_acre hdd gdd precip [weight=weights] if year>2014 & year<2021, a(county_code year) cluster(DAUCO)
-est store ppml_co
-estadd local individual "CO"
-
-
-ppmlhdfe treat ag_allocation_acre hdd gdd precip [weight=weights] if year>2014 & year<2021, a(psa_code year) cluster(DAUCO)
-est store ppml_psa
-
-estadd local individual "PA"
-
-
-ppmlhdfe treat ag_allocation_acre hdd gdd precip [weight=weights] if year>2014 & year<2021, a(year) cluster(DAUCO)
-est store ppml_no
-estadd local individual "None"
-*/
 
 
 esttab rf_fr* iv_fr* using "$TABLES/failures_dauco.tex", keep(ag_allocation_acre  ag_deliv_acre  hdd gdd) order(ag_allocation_acre  ag_deliv_acre hdd gdd) label se mgroups("Reduced Form" "IV/2SLS", pattern(1 0 0 1 0 0 0)) scalar("N_full Observations" "num_singletons N Excluded" "df_a_nested N Groups" "rkf KP F" "weights Weights" "clustvar Cluster" "time Time FE" "individual Unit FE")  replace title("Probability of Domestic Well Failure") nomtitles b(3) nostar

@@ -37,21 +37,11 @@ replace ag_allocation_acre=10 if ag_allocation_acre>10
 
 gen l_ag_allocation_acre=log(ag_allocation_acre)
 
-label var p_construction "count public well construction"
-label var cum_sum_p_construction "cumulative total public wells (1701 - to year)"
-label var d_depth "average domestic well depth"
-label var d_construction "count domestic well construction"
-label var cum_sum_d_construction "cumulative total domestic wells (1701 - to year)"
-label var depth "average depth of new agricultural wells"
-label var failures "count of reported domestic well failures"
-label var cum_failures "cumulative number of reported well failures"
 label var construction "New Ag Wells per DAUCO"
-label var cum_construction "cumulative number of agricultural wells (1701-to year)"
 label var hdd "Harmful Degree Days"
 label var precip "Annual Precipitation"
 label var dday8 "Growing Degree Days"
 label var crop_acres "Crop Acres"
-label var ag_allocation "total agricultural volume (AF)"
 label var ag_allocation_acre "Ag SW Allocation per crop acre (AF)"
 
 
@@ -70,12 +60,6 @@ gen gdd=dday8-hdd
 label var gdd "Growing Degree Days"
 
 
-gen hist_construction=construction
-replace hist_construction=50 if hist_construction>50
-label var hist_construction "New Ag Wells per DAUCO"
-
-
-histogram hist_construction, width(1) percent
 ********************************************************************************
 **************1. First Stage: SW Allocation on Ag Deliveries********************
 ********************************************************************************
@@ -161,6 +145,7 @@ estadd local individual "X"
 estadd local weights "Crop Acres"
 
 *Loads bootstrap functions for control functions
+capture program drop _all
 do "code/03_analysis/03f_bootstrap.do"
 
 bootstrap ag_deliveries_acre=r(b_ag_deliv_acre) deliv_hat=r(b_deliv_hat) if year<2021, reps(10) seed(1234) cluster(DAUCO) idcluster(newid):  wells_boot_lvl_weight_noctrl
@@ -227,33 +212,30 @@ xtreg construction mi_allocation_acre i.year [weight=crop_acres], fe  vce(robust
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
-estimates store construct_5
+estimates store construct_mi1
 
 
 xtreg construction mi_allocation_acre hdd gdd precip L.precip i.year [weight=crop_acres], fe vce(robust)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
-estimates store construct_6
+estimates store construct_mi2
 
 ppmlhdfe construction mi_allocation_acre [weight=crop_acres], a(DAUCO year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
-estimates store construct_7
+estimates store construct_mi3
 
 ppmlhdfe construction mi_allocation_acre hdd gdd precip L.precip [weight=crop_acres], a(DAUCO year) cluster(DAUCO)
 estadd local weights "Crop Acres"
 estadd local time "X"
 estadd local individual "X"
-estimates store construct_8
+estimates store construct_mi4
 
 
 
 *Distributed Lags
-do "code/03_analysis/03f_bootstrap.do"
-
-
 bootstrap ag_deliveries_acre=r(b_ag_deliv_acre) ag_deliveries_acre1=r(b_ag_deliv_acre1) deliv_hat=r(b_deliv_hat) deliv_hat1=r(b_deliv_hat1) hdd=r(b_hdd) hdd1=r(b_hdd1) gdd=r(b_gdd) precip=r(b_precip) if year<2021, reps(10) seed(1234) cluster(DAUCO) idcluster(newid):  wells_boot_lvl_lag1
 estimates store boot_lvl_lag1
 estadd local time "X"
@@ -262,7 +244,7 @@ estadd local weights "Crop Acres"
 
 
 test hdd+hdd1=0
-estadd scalar cum1=_b[hdd]+_b[hdd]
+estadd scalar cum1=_b[hdd]+_b[L.hdd]
 estadd scalar p1=r(p)
 test ag_deliveries_acre+ag_deliveries_acre1=0
 estadd scalar cum2=_b[ag_deliveries_acre]+_b[ag_deliveries_acre1]
