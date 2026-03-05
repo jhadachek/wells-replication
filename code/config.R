@@ -18,6 +18,14 @@ DERIVED   <- file.path(ROOT, "data", "derived")
 TABLES    <- file.path(ROOT, "output", "tables")
 FIGURES   <- file.path(ROOT, "output", "figures")
 
+# Raw data subdirectories
+# Schlenker California daily weather grids — not publicly available;
+# request from Wolfram Schlenker (Columbia). Place files as:
+#   RAW_SCHLENKER_CA/california{year}.dta  (years 1993–2019)
+#   RAW_SCHLENKER_CA/dd_2020_2021.dta
+#   RAW_SCHLENKER_CA/california_raw_prec.dta
+RAW_SCHLENKER_CA <- file.path(RAW_DIR, "weather_schlenker_ca")
+
 # GIS subdirectories
 GIS_GWDEPTH <- file.path(DERIVED, "gis", "groundwater_depth")
 GIS_GWQUAL  <- file.path(DERIVED, "gis", "groundwater_quality")

@@ -68,6 +68,7 @@ do "code/config.do"
 //           domestic_failures_panel.dta, weather_dauco_annual.dta
 // ============================================================
 
+// shell Rscript "code/02_merge/02e_weather_to_dau.R"   // run first — 02a/02b/02c depend on this
 // shell Rscript "code/02_merge/02_merge_panels.R"
 // shell Rscript "code/02_merge/02a_dauco_panel.R"
 // shell Rscript "code/02_merge/02b_failures_panel.R"
