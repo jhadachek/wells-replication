@@ -1,0 +1,32 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Changes in GW Depth}
+\begin{tabular}{l*{5}{c}}
+\hline\hline
+                    &\multicolumn{1}{c}{(1)}&\multicolumn{1}{c}{(2)}&\multicolumn{1}{c}{(3)}&\multicolumn{1}{c}{(4)}&\multicolumn{1}{c}{(5)}\\
+                    &\multicolumn{1}{c}{All}&\multicolumn{1}{c}{All Balanced}&\multicolumn{1}{c}{New Balanced}&\multicolumn{1}{c}{No Outliers}&\multicolumn{1}{c}{Aggregated}\\
+\hline
+log(Ag SW Allocation per crop acre (AF))&      -2.856         &      -0.218         &                     &      -5.185\sym{***}&                     \\
+                    &     (3.190)         &     (0.902)         &                     &     (1.446)         &                     \\
+[1em]
+L.log(Ag SW Allocation per crop acre (AF))&                     &                     &                     &       4.590\sym{***}&                     \\
+                    &                     &                     &                     &     (0.837)         &                     \\
+[1em]
+Ag SW Allocation per crop acre (AF)&                     &                     &                     &                     &      -3.764\sym{*}  \\
+                    &                     &                     &                     &                     &     (1.555)         \\
+[1em]
+L.Ag SW Allocation per crop acre (AF)&                     &                     &                     &                     &       2.324\sym{***}\\
+                    &                     &                     &                     &                     &     (0.644)         \\
+\hline
+Observations        &       15067         &       22619         &        6089         &        1851         &        1854         \\
+N Groups            &         560         &        1528         &         300         &         109         &         109         \\
+Weights             &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         &  Crop Acres         \\
+Cluster             &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         &       DAUCO         \\
+Time FE             &           X         &           X         &           X         &           X         &           X         \\
+Unit FE             &           X         &           X         &           X         &           X         &           X         \\
+Years               &       94-21         &       03-21         &       03-21         &       03-21         &       03-21         \\
+\hline\hline
+\multicolumn{6}{l}{\footnotesize Standard errors in parentheses}\\
+\multicolumn{6}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
+\end{tabular}
+\end{table}
