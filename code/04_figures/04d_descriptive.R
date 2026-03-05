@@ -18,7 +18,7 @@
 #          DERIVED/domestic_failures_panel.dta   (domestic failure panel)
 #          RAW_DIR/nhgis0006_csv/nhgis0006_ds249_20205_tract.csv
 #          RAW_DIR/gis/DAU_County_2018/DAU_County_2018.shp
-#          RAW_DIR/water_balance/CA-DWR-WaterBalance-Level2-DP-1000-{year}-DAUCO.csv
+#          RAW_DIR/water_balance/CA-DWR-WaterBalance-Level2-DP-1000-{year}-DAUCO.csv  [commented out — Section 4]
 #          RAW_DIR/swrcb_groundwater/gama_all_dtw_elev.dta
 #          RAW_DIR/cnra/periodic_levels/measurements.dta
 #
@@ -235,69 +235,70 @@ ggsave(
 # ==============================================================================
 # SECTION 4: Recharge Coefficient from CA Water Balance
 # Source: recharge_coef.R
-# Note: Original used final2.dta; updated to canonical dauco_construction_panel.dta.
-#       Verify that dau_name and dauco_pctcrop variables exist.
+# NOTE: Commented out — requires RAW_DIR/water_balance/CA-DWR-WaterBalance-
+#       Level2-DP-1000-{year}-DAUCO.csv (years 2002–2020, excl. 2017).
+#       This block produces no figure output; reactivate if data is available.
 # ==============================================================================
 
-yearlist <- seq(2002, 2020, 1)[-16]  # exclude 2017 (missing)
-
-final <- read_dta(file.path(DERIVED, "dauco_construction_panel.dta")) %>%
-  dplyr::select(dau_name, dauco_pctcrop, dauco_area) %>%
-  mutate(dauco_acres = dauco_pctcrop * dauco_area * 247.11) %>%
-  group_by(dau_name) %>%
-  summarize(dauco_acres = first(dauco_acres)) %>%
-  rename(DAU_NAME = dau_name)
-
-recharge_list <- vector("list", length(yearlist))
-
-for (i in seq_along(yearlist)) {
-  x <- yearlist[i]
-
-  water <- read_csv(
-    file.path(
-      RAW_DIR, "water_balance",
-      paste0("CA-DWR-WaterBalance-Level2-DP-1000-", x, "-DAUCO.csv")
-    )
-  )
-
-  agwater <- water %>%
-    filter(CategoryC %in% c(
-      "Applied Water Use",
-      "Deep Percolation of Applied Water",
-      "Deep Percolation of Groundwater Recharge"
-    )) %>%
-    group_by(DAU_NAME, CategoryC, CategoryA) %>%
-    summarize(KAcreFt = sum(KAcreFt, na.rm = TRUE)) %>%
-    pivot_wider(
-      values_from = KAcreFt,
-      names_from  = c(CategoryC, CategoryA)
-    ) %>%
-    mutate(
-      total_applied = rowSums(
-        pick(`Applied Water Use_Agriculture`:`Applied Water Use_Wild and Scenic River`),
-        na.rm = TRUE
-      ),
-      total_perc = rowSums(
-        pick(`Deep Percolation of Applied Water_Agriculture`:`Deep Percolation of Groundwater Recharge_Urban`),
-        na.rm = TRUE
-      ),
-      recharge_coef = total_perc / total_applied
-    ) %>%
-    filter(!is.infinite(recharge_coef)) %>%
-    mutate(year = x)
-
-  recharge_list[[i]] <- agwater %>%
-    left_join(final) %>%
-    filter(!is.na(dauco_acres))
-}
-
-recharge_all <- bind_rows(recharge_list)
-
-recharge_byyear <- recharge_all %>%
-  group_by(year) %>%
-  summarize(
-    recharge_coef = weighted.mean(recharge_coef, w = dauco_acres, na.rm = TRUE)
-  )
+# yearlist <- seq(2002, 2020, 1)[-16]  # exclude 2017 (missing)
+#
+# final <- read_dta(file.path(DERIVED, "dauco_construction_panel.dta")) %>%
+#   dplyr::select(dau_name, dauco_pctcrop, dauco_area) %>%
+#   mutate(dauco_acres = dauco_pctcrop * dauco_area * 247.11) %>%
+#   group_by(dau_name) %>%
+#   summarize(dauco_acres = first(dauco_acres)) %>%
+#   rename(DAU_NAME = dau_name)
+#
+# recharge_list <- vector("list", length(yearlist))
+#
+# for (i in seq_along(yearlist)) {
+#   x <- yearlist[i]
+#
+#   water <- read_csv(
+#     file.path(
+#       RAW_DIR, "water_balance",
+#       paste0("CA-DWR-WaterBalance-Level2-DP-1000-", x, "-DAUCO.csv")
+#     )
+#   )
+#
+#   agwater <- water %>%
+#     filter(CategoryC %in% c(
+#       "Applied Water Use",
+#       "Deep Percolation of Applied Water",
+#       "Deep Percolation of Groundwater Recharge"
+#     )) %>%
+#     group_by(DAU_NAME, CategoryC, CategoryA) %>%
+#     summarize(KAcreFt = sum(KAcreFt, na.rm = TRUE)) %>%
+#     pivot_wider(
+#       values_from = KAcreFt,
+#       names_from  = c(CategoryC, CategoryA)
+#     ) %>%
+#     mutate(
+#       total_applied = rowSums(
+#         pick(`Applied Water Use_Agriculture`:`Applied Water Use_Wild and Scenic River`),
+#         na.rm = TRUE
+#       ),
+#       total_perc = rowSums(
+#         pick(`Deep Percolation of Applied Water_Agriculture`:`Deep Percolation of Groundwater Recharge_Urban`),
+#         na.rm = TRUE
+#       ),
+#       recharge_coef = total_perc / total_applied
+#     ) %>%
+#     filter(!is.infinite(recharge_coef)) %>%
+#     mutate(year = x)
+#
+#   recharge_list[[i]] <- agwater %>%
+#     left_join(final) %>%
+#     filter(!is.na(dauco_acres))
+# }
+#
+# recharge_all <- bind_rows(recharge_list)
+#
+# recharge_byyear <- recharge_all %>%
+#   group_by(year) %>%
+#   summarize(
+#     recharge_coef = weighted.mean(recharge_coef, w = dauco_acres, na.rm = TRUE)
+#   )
 
 
 # ==============================================================================
