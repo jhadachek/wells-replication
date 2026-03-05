@@ -27,28 +27,11 @@ drop if DAUCO==.
 
 xtset DAUCO year
 
-label var p_construction "count public well construction"
-label var cum_sum_p_construction "cumulative total public wells (1701 - to year)"
-label var d_depth "average domestic well depth"
-label var d_construction "count domestic well construction"
-label var cum_sum_d_construction "cumulative total domestic wells (1701 - to year)"
-label var depth "average depth of new agricultural wells"
-label var failures "count of reported domestic well failures"
-label var cum_failures "cumulative number of reported well failures"
 label var construction "New Ag Wells per DAUCO"
-label var cum_construction "cumulative number of agricultural wells (1701-to year)"
 label var hdd "Harmful Degree Days"
 label var precip "Annual Precipitation"
-label var dday8 "Growing Degree Days"
-label var total_acres "total DAUCO area acres (km^2 * 247.11)"
 label var crop_acres "Crop Acres"
-label var ag_allocation "total agricultural volume (AF)"
 label var ag_allocation_acre "Ag SW Allocation per crop acre (AF)"
-label var ag_construction_acre "agricultural well constructed per crop acre"
-label var prop_fail "proportion of domestic wells reporting failure"
-label var diff_depth "$\Delta DTW (ft)$"
-label var diff_w_depth "difference in constructed agricultural well depth"
-label var diff_w_dom_depth "difference in constructed domestic well depth"
 gen l_ag_allocation_acre=log(ag_allocation_acre)
 label var l_ag_allocation_acre "log(Ag SW per crop acre (AF))"
 
@@ -100,7 +83,7 @@ gen l_ag_deliv_acre=log(ag_deliv_acre)
 gen gdd=dday8-hdd
 
 label var diff_depth "\Delta DTW"
-labe var dtw2 "Depth to Groundwater (ft)"
+label var dtw2 "Depth to Groundwater (ft)"
 bysort DAUCO: egen pct90=pctile(diff_depth), p(90)
 
 drop if abs(diff_depth)>1.5*pct90
