@@ -4,7 +4,7 @@
 # Source:  depth_map.R, water_wells_map.R
 #
 # Inputs:  DERIVED/gwdepth_well_panel.dta
-#          RAW_DIR/gis/DAU_County_2018.shp
+#          RAW_DIR/gis/DAU_County_2018/DAU_County_2018.shp
 #          DERIVED/allocations_aggregate_dauco.dta
 #          DERIVED/well_construction.csv
 #
@@ -75,7 +75,7 @@ long_change<-gwdepth_well_panel%>%
 
 summary(long_change$diff)
 
-dau<-st_read(file.path(RAW_DIR, "gis", "DAU_County_2018.shp"))%>%
+dau<-st_read(file.path(RAW_DIR, "gis", "DAU_County_2018", "DAU_County_2018.shp"))%>%
   mutate(DAUCO=as.numeric(DAUCO))
 
 dauco_long<-long_change%>%
@@ -106,7 +106,7 @@ allocations_aggregate_dauco <- read_dta(file.path(DERIVED, "allocations_aggregat
   select(dauco_id, year, pct_allocation_ag)%>%
   mutate(pct_allocation_ag=pct_allocation_ag*100)
 
-dau<-st_read(file.path(RAW_DIR, "gis", "DAU_County_2018.shp"))%>%
+dau<-st_read(file.path(RAW_DIR, "gis", "DAU_County_2018", "DAU_County_2018.shp"))%>%
   mutate(DAUCO=as.numeric(DAUCO))
 
 

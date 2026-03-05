@@ -102,7 +102,7 @@ tracts<-tracts%>%
   mutate(density=Pop/(ALAND+AWATER))
 
 
-pws<-st_read(file.path(RAW_DIR, "gis", "SABL_Public_211025.shp"))%>%
+pws<-st_read(file.path(RAW_DIR, "gis", "PWS_shp", "SABL_Public_211025.shp"))%>%
   filter(COUNTY=="FRESNO", FEDERAL_CL=="COMMUNITY", BOUNDARY_T=="Water Service Area")%>%
   filter(WATER_SY_1 %in% c("CITY OF FRESNO", "CITY OF CLOVIS"
                            ))
