@@ -31,10 +31,13 @@ source(here::here("code", "config.R"))
 # SECTION 1: Fresno Failure Maps (from fresno_failures.R)
 # ==============================================================================
 
-pacman::p_load(readr,tmap,sf, ggplot2, dplyr, ggmap, lubridate, tidyr, stringr, raster, readxl)
+pacman::p_load(readr, haven, tmap, sf, ggplot2, dplyr, ggmap, lubridate, tidyr, stringr, readxl)
 
 
 HouseholdWater<- read_csv(file.path(RAW_DIR, "householdwatersupplyshortagereportingsystemdata.csv"))
+
+counties<-tigris::counties(state="California")
+tracts<-tigris::tracts(state="California")
 
 domestic<- read_csv(file.path(DERIVED, "well_construction.csv"))%>%
   filter(type=="Domestic")%>%
@@ -82,9 +85,6 @@ failures_sf<-HouseholdWater_new%>%
 
 failures_sf<-st_set_crs(failures_sf, "+proj=longlat +datum=WGS84 +no_defs")
 
-counties<-tigris::counties(state="California")
-tracts<-tigris::tracts(state="California")
-
 demographics<- read_csv(file.path(RAW_DIR, "nhgis0006_csv", "nhgis0006_ds249_20205_tract.csv"))%>%
   filter(STATE=="California")%>%
   dplyr::select(GISJOIN,TRACTA, AMPVE001, AMP3E012, AMR8E001, AMR5E001, AMR5E002, AMPWE002)%>%
@@ -127,42 +127,38 @@ sjv_counties<-counties%>%
 
 
 
-pws_well<-tm_shape(pws, bbox=bbox)+tm_fill(col="blue",alpha=0.5)+
+pws_well<-tm_shape(pws, bbox=bbox)+tm_fill(fill="blue", fill_alpha=0.5)+
   tm_shape(failures_county)+tm_symbols(col="black", shape=4, size=0.2)+
   tm_shape(counties)+tm_borders(lwd=2)+
-  tm_add_legend(type="fill", col="blue", alpha=0.5,labels=("Public Water System Area"))+
-  tm_add_legend(type="symbol", col="black", shape=4, labels = "Well Failure")+
+  tm_add_legend(type="fill", fill="blue", fill_alpha=0.5, labels="Public Water System Area")+
+  tm_add_legend(type="symbols", fill="black", shape=4, labels="Well Failure")+
   tm_layout(legend.position=c("left","top"))
 
-density<-tm_shape(tracts)+tm_fill(col="density", style = "cont",
-                                    title="Population Density (per sq mile)",
-                                    breaks = c(0,2000,4000,6000,8000,10000))+
+density<-tm_shape(tracts)+tm_fill(fill="density",
+                                    fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,2000,4000,6000,8000,10000)),
+                                    fill.legend=tm_legend(title="Population Density (per sq mile)"))+
   #tm_shape(failures_county)+tm_symbols(col="black", shape=4, size=0.2)+
   tm_shape(counties)+tm_borders(lwd=1)+
   tm_shape(sjv_counties)+tm_borders(lwd=3, col="black")
   #tm_add_legend(type="symbol", labels="Well Failure", shape=4, col="black")
 
-hisp<-tm_shape(tracts)+tm_fill(col="pct_hisp", style = "cont",
-                                    title="% Hispanic Population")+
+hisp<-tm_shape(tracts)+tm_fill(fill="pct_hisp",
+                                    fill.scale=tm_scale_continuous(),
+                                    fill.legend=tm_legend(title="% Hispanic Population"))+
   #tm_shape(failures_county)+tm_symbols(col="black", shape=4, size=0.2)+
   tm_shape(counties)+tm_borders(lwd=1)+
   tm_shape(sjv_counties)+tm_borders(lwd=3, col="black")
 
-  tm_add_legend(type="symbol", labels="Well Failure", shape=4, col="black")
-
-pov<-tm_shape(tracts)+tm_fill(col="pct_pov", style = "cont",
-                                          title="% Below Poverty Line",
-                              breaks=c(0,10,20,30,40,50)
-                              labels=c("0","10","20","30","40",">50"))+
+pov<-tm_shape(tracts)+tm_fill(fill="pct_pov",
+                              fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,10,20,30,40,50)),
+                              fill.legend=tm_legend(title="% Below Poverty Line"))+
   #tm_shape(failures_county)+tm_symbols(col="black", shape=4, size=0.2)+
   tm_shape(counties)+tm_borders(lwd=1)+
   tm_shape(sjv_counties)+tm_borders(lwd=3, col="black")
 
-  tm_add_legend(type="symbol", labels="Well Failure", shape=4, col="black")
-
-domestic_map<-tm_shape(domestic_county)+tm_fill(col="domestic_count", style = "cont",
-                                 title="Domestic wells (per sq. mile)",
-                                 breaks=c(0,1,2,3,4,5))+
+domestic_map<-tm_shape(domestic_county)+tm_fill(fill="domestic_count",
+                                 fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,1,2,3,4,5)),
+                                 fill.legend=tm_legend(title="Domestic wells (per sq. mile)"))+
     #tm_shape(failures_county)+tm_symbols(col="black", shape=4, size=0.2)+
     tm_shape(counties)+tm_borders(lwd=1)+
     tm_shape(sjv_counties)+tm_borders(lwd=3, col="black")
@@ -177,11 +173,9 @@ tmap_save(pov, filename = file.path(FIGURES, "cal_pov.png"))
 failures<-tm_shape(failures_sf)+tm_symbols(col="darkred", shape=4, size=0.1)+
   tm_shape(counties)+tm_borders(lwd=1)+
   tm_shape(sjv_counties)+tm_borders(lwd=3, col="black")+
-  tm_add_legend(type="symbol", labels="Well Failure", shape=4, col="darkred")
+  tm_add_legend(type="symbols", labels="Well Failure", shape=4, fill="darkred")
 
 tmap_save(failures, filename = file.path(FIGURES, "cal_failures.png"))
-
-filter(NAME %in% c("San Joaquin","Kings","Merced","Stanislaus","Fresno","Madera","Tulare"))
 
 # ==============================================================================
 # SECTION 2: Monitoring Well Locations (from monitoring wells.R)
@@ -193,11 +187,11 @@ depth_allrawobs<-depth_allrawobs%>%
   select(latitude, longitude, wellid)%>%
   group_by(latitude, longitude, wellid)%>%
   summarize(count=n())%>%
-  st_as_sf(coords=c("longitude", "latitude"))
+  st_as_sf(coords=c("longitude", "latitude"), crs=4326)
 
 
 counties<-tigris::counties(state="California")
 
-tm_shape(depth_allrawobs)+tm_symbols(alpha=0.2,size=0.001, shape=21, col="black")+
+tm_shape(depth_allrawobs)+tm_symbols(fill="black", fill_alpha=0.2, size=0.001, shape=21)+
   tm_shape(counties)+tm_borders()+
-  tm_add_legend(type="symbol",labels="Monitoring Well",shape=21, col="black")
+  tm_add_legend(type="symbols", labels="Monitoring Well", shape=21, fill="black")

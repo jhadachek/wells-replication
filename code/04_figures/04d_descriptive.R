@@ -127,10 +127,10 @@ domestic_full <- tracts %>%
   filter(!is.infinite(count_pcapita))
 
 domestic_map <- tm_shape(domestic) +
-  tm_symbols(col = "black", size = 0.001, alpha = 0.2) +
+  tm_symbols(fill = "black", fill_alpha = 0.2, size = 0.001) +
   tm_shape(counties) +
   tm_borders(lwd = 1) +
-  tm_add_legend(type = "symbol", labels = "Domestic Well", shape = 4, col = "black")
+  tm_add_legend(type = "symbols", labels = "Domestic Well", shape = 4, fill = "black")
 
 tmap_save(domestic_map, filename = file.path(FIGURES, "domestic_map.png"))
 
@@ -172,12 +172,9 @@ dau_dtw_2006 <- dau %>% left_join(diff_depth_2006)
 
 dtw_2006 <- tm_shape(dau_dtw_2006) +
   tm_fill(
-    col          = "av_diff_depth",
-    style        = "cont",
-    breaks       = c(-10, -5, 0, 5, 10),
-    palette      = "-RdYlBu",
-    title        = "DTW",
-    legend.show  = FALSE
+    fill         = "av_diff_depth",
+    fill.scale   = tm_scale_intervals(style="fixed", breaks=c(-10,-5,0,5,10), values="-RdYlBu"),
+    fill.legend  = tm_legend_hide()
   ) +
   tm_shape(dau) +
   tm_borders() +
@@ -372,7 +369,8 @@ ggsave(buffer_hist, filename = file.path(FIGURES, "buffer_hist.png"), height = 4
 # Source: well_failure_prob.R
 # ==============================================================================
 
-domestic_failures_panel <- read_dta(file.path(DERIVED, "domestic_failures_panel.dta"))
+domestic_failures_panel <- read_dta(file.path(DERIVED, "domestic_failures_panel.dta")) %>%
+  rename(failure = treat)
 
 failures_well <- domestic_failures_panel %>%
   mutate(

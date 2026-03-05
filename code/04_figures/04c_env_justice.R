@@ -21,9 +21,10 @@ library(here)
 # Paths set via code/config.R (run from replication/ directory)
 source(here::here("code", "config.R"))
 
-pacman::p_load(dplyr, MASS, ggplot2, hrbrthemes, haven, tigris)
+pacman::p_load(dplyr, MASS, ggplot2, hrbrthemes, haven, tigris, sf, fixest, readxl)
 
-df <- read_dta(file.path(DERIVED, "domestic_failures_panel.dta"))
+df <- read_dta(file.path(DERIVED, "domestic_failures_panel.dta")) %>%
+  rename(failure = treat)
 
 # Parse each character string into numeric vector
 df$lon <- sapply(df$id, function(x) as.numeric(strsplit(gsub("[c()]", "", x), ",")[[1]])[1])

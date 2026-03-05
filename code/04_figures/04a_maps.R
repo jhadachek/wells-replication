@@ -27,7 +27,7 @@ source(here::here("code", "config.R"))
 # SECTION 1: Groundwater Depth Maps (from depth_map.R)
 # ==============================================================================
 
-pacman::p_load(dplyr, tmap, haven, tidyr, ggplot2, sf)
+pacman::p_load(dplyr, tmap, haven, tidyr, ggplot2, sf, readr, lubridate)
 
 gwdepth_well_panel <- read_dta(file.path(DERIVED, "gwdepth_well_panel.dta"))
 
@@ -115,8 +115,8 @@ allocations_1994<-allocations_aggregate_dauco%>%
   filter(year==1994)
 
 
-allocations_2005<-allocations_aggregate_dauco%>%
-  filter(year==2005)
+allocations_2006<-allocations_aggregate_dauco%>%
+  filter(year==2006)
 
 
 allocations_2015<-allocations_aggregate_dauco%>%
@@ -128,12 +128,9 @@ map_1994<-allocations_1994%>%
   right_join(dau)%>%
   st_as_sf(sf_column_name = "geometry")%>%
   tm_shape()+tm_borders()+
-  tm_fill(col="pct_allocation_ag",
-       style="cont",
-       palette = "-OrRd",
-       title="Ag Allocation %",
-       breaks=c(0,20,40,60,80,100),
-       legend.show = FALSE)+
+  tm_fill(fill="pct_allocation_ag",
+       fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,20,40,60,80,100), values="-OrRd"),
+       fill.legend=tm_legend_hide())+
   tm_layout(main.title="1994")
 
 map_1994
@@ -144,12 +141,9 @@ map_2006<-allocations_2006%>%
   right_join(dau)%>%
   st_as_sf(sf_column_name = "geometry")%>%
   tm_shape()+tm_borders()+
-  tm_fill(col="pct_allocation_ag",
-          style="cont",
-          palette = "-OrRd",
-          title="Ag Allocation %",
-          breaks=c(0,20,40,60,80,100),
-          legend.show = FALSE)+
+  tm_fill(fill="pct_allocation_ag",
+          fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,20,40,60,80,100), values="-OrRd"),
+          fill.legend=tm_legend_hide())+
   tm_layout(main.title="2006")
 
 
@@ -161,10 +155,9 @@ map_2015<-allocations_2015%>%
   right_join(dau)%>%
   st_as_sf(sf_column_name = "geometry")%>%
   tm_shape()+tm_borders()+
-  tm_fill(col="pct_allocation_ag",
-          style="cont",
-          palette = "-OrRd",
-          title="Allocation %")+
+  tm_fill(fill="pct_allocation_ag",
+          fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,20,40,60,80,100), values="-OrRd"),
+          fill.legend=tm_legend(title="Allocation %"))+
   tm_layout(main.title="2015")
 
 
@@ -211,12 +204,9 @@ wells_2015<-tmp%>%
   within(outcome[is.na(outcome)==T]<- 0)%>%
   st_as_sf(sf_column_name = "geometry")%>%
   tm_shape()+tm_borders()+
-  tm_fill(col="outcome",
-          style="cont",
-          breaks=c(0,10,20,30,40,50),
-          labels=c("0","10","20","30","40",">50"),
-          palette="BuGn",
-          title="New Ag Wells")+
+  tm_fill(fill="outcome",
+          fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,10,20,30,40,50), values="BuGn"),
+          fill.legend=tm_legend(title="New Ag Wells"))+
   tm_layout(main.title="2015")
 
 wells_2015
@@ -228,13 +218,9 @@ wells_2006<-tmp%>%
   within(outcome[is.na(outcome)==T]<- 0)%>%
   st_as_sf(sf_column_name = "geometry")%>%
   tm_shape()+tm_borders()+
-  tm_fill(col="outcome",
-          style="cont",
-          breaks=c(0,10,20,30,40,50),
-          labels=c("0","10","20","30","40",">50"),
-          palette = "BuGn",
-          title="Count of Wells",
-          legend.show=FALSE)+
+  tm_fill(fill="outcome",
+          fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,10,20,30,40,50), values="BuGn"),
+          fill.legend=tm_legend_hide())+
   tm_layout(main.title="2006")
 
 wells_2006
@@ -246,13 +232,9 @@ wells_1994<-tmp%>%
   within(outcome[is.na(outcome)==T]<- 0)%>%
   st_as_sf(sf_column_name = "geometry")%>%
   tm_shape()+tm_borders()+
-  tm_fill(col="outcome",
-          style="cont",
-          breaks=c(0,10,20,30,40,50),
-          labels=c("0","10","20","30","40",">50"),
-          palette = "BuGn",
-          title="Count of Wells",
-          legend.show=FALSE)+
+  tm_fill(fill="outcome",
+          fill.scale=tm_scale_intervals(style="fixed", breaks=c(0,10,20,30,40,50), values="BuGn"),
+          fill.legend=tm_legend_hide())+
   tm_layout(main.title="1994")
 
 wells_1994
