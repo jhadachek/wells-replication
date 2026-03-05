@@ -26,8 +26,6 @@ FIGURES   <- file.path(ROOT, "output", "figures")
 #   RAW_SCHLENKER_CA/california_raw_prec.dta
 RAW_SCHLENKER_CA <- file.path(RAW_DIR, "weather_schlenker_ca")
 
-# GIS subdirectories
-GIS_GWDEPTH <- file.path(DERIVED, "gis", "groundwater_depth")
 
 message("ROOT:    ", ROOT)
 message("RAW:     ", RAW_DIR)

@@ -17,7 +17,7 @@
 #   - dauco_construction_panel.dta is the canonical DAUCO-year ag construction panel
 #
 # Inputs:
-#   DERIVED/farmgrid_gwdepth_long.dta
+#   DERIVED/gwdepth_well_panel.dta
 #     Well-level groundwater depth panel (wellid × year). Produced by Stage 1
 #     GIS pipeline (01a + ArcPy interpolation). Contains at minimum:
 #       wellid, year, dtw (depth to water, ft), DAUCO, w (weight)
@@ -58,17 +58,15 @@ library(dplyr)
 
 # ==============================================================================
 # STEP 1: Load well-level groundwater depth panel
-# TODO: Verify exact file name and variable names produced by 01a + GIS pipeline
 # ==============================================================================
 
-# NOTE: Replace with correct file name once Stage 1 outputs are verified.
-# The analysis (03d_gw_depth.do) loads gwdepth_well_panel.dta which contains:
-#   wellid, year, dtw, diff_depth, DAUCO, hdd, gdd, precip*, sw_alloc, w
+# NOTE: gwdepth_well_panel.dta is produced by 02c_depth_panel.R (reads
+# gwdepth_raw_obs.dta from 01a and spatially joins to DAU County boundaries).
 # For replicators: use the provided data/derived/gwdepth_well_panel.dta directly
 # and skip this script.
 
 well_depth_panel <- read_dta(
-  file.path(DERIVED, "farmgrid_gwdepth_long.dta")  # TODO: verify file name
+  file.path(DERIVED, "gwdepth_well_panel.dta")
 )
 
 # Compute year-on-year change in depth to water

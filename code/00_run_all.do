@@ -59,7 +59,7 @@ do "code/config.do"
 // DO NOT uncomment — these scripts cannot be run.
 // ============================================================
 
-// shell python "code/01_clean/01b_gw_depth_python.py"   // NOT REPRODUCIBLE
+// [01b_gw_depth_python.py removed — raster outputs not used in active pipeline]
 // [01d_gw_quality_python.py removed — gw quality outputs not used in analysis]
 
 // ============================================================
