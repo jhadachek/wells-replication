@@ -95,5 +95,6 @@ shell Rscript "code/04_figures/04a_maps.R"
 shell Rscript "code/04_figures/04b_failure_maps.R"
 shell Rscript "code/04_figures/04c_env_justice.R"
 shell Rscript "code/04_figures/04d_descriptive.R"
+shell Rscript "code/04_figures/04e_allocation_figures.R"
 
 di "Replication complete. Check output/tables/ and output/figures/."
