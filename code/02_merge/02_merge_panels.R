@@ -18,10 +18,10 @@
 #
 # Inputs:
 #   DERIVED/gwdepth_well_panel.dta
-#     Well-level groundwater depth panel (wellid × year). Produced by Stage 1
-#     GIS pipeline (01a + ArcPy interpolation). Contains at minimum:
+#     Well-level groundwater depth panel (wellid × year). Produced by
+#     02c_depth_panel.R, which spatially joins the raw observations from
+#     01a_gw_depth_stata.do to DAU County boundaries. Contains at minimum:
 #       wellid, year, dtw (depth to water, ft), DAUCO, w (weight)
-#     NOTE: Exact file name and variable list must be verified against 01a output.
 #
 #   RAW_DIR/surface_water/allocations_aggregate_dauco.{dta,csv}
 #     DAU-county-level surface water allocations (from Nick Hagerty).
@@ -41,9 +41,8 @@
 #   1. The step merging weather data (weather_prepped_yearly.dta) to well-level
 #      is not documented — it likely requires a spatial crosswalk from wellid
 #      to gridNumber. See farmgrid_weather_crosswalk.dta from 01e.
-#   2. The step producing the input well_depth_panel from Stage 1 GIS outputs
-#      is not fully documented. The derived file gwdepth_well_panel.dta (canonical)
-#      is provided in data/derived/ for replicators.
+#   2. The derived file gwdepth_well_panel.dta (canonical) is provided in
+#      data/derived/ for replicators; see 02c_depth_panel.R for how it's built.
 #   3. The diff_depth variable (year-on-year change in dtw) must be computed
 #      before or within this script.
 #

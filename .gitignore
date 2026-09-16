@@ -4,6 +4,7 @@
 
 # Large data files — stored in OneDrive, not git
 data/derived/
+data/derived_originals/
 data/raw/*.csv
 data/raw/*.dta
 data/raw/**/*.dta

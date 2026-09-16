@@ -43,7 +43,7 @@ the water table and reducing drinking-water access for domestic well users.
 | NHGIS Census Data | NHGIS (registration required) | Free w/ registration | No |
 | Farmgrid Crosswalk | Nick Hagerty | Request from authors | No |
 | CA DWR Water Balance | CA DWR (public) | Free download | No |
-| **Derived analysis datasets** | Produced by this code | **Available from authors** | `data/derived/` |
+| **Derived analysis datasets** | Produced by this code | [Download](https://uwmadison.box.com/v/wells-replication-data) | `data/derived/` |
 
 See `data/raw/README_raw.md` for detailed access instructions for each raw dataset.
 
@@ -65,12 +65,6 @@ See `data/raw/README_raw.md` for detailed access instructions for each raw datas
 |----------|---------|---------|
 | Stata | 18.0 (tested) | Cleaning, merging, estimation, tables |
 | R | 4.3+ | Figures, some cleaning/merging |
-| Python 2.7 + ArcPy | (historical) | GIS raster interpolation — **NOT REPRODUCIBLE** |
-
-**Note on ArcPy (Stage 2):** The GIS raster interpolation step was performed
-using ArcGIS Desktop with Python 2.7/ArcPy, which is no longer available.
-The derived GIS outputs (ASCII grid files) are provided in `data/derived/gis/`
-and are treated as fixed inputs. Replicators do not need ArcGIS or Python.
 
 ### Stata Packages
 
@@ -111,12 +105,9 @@ Install via `Rscript code/install_packages.R`:
 | Stage | Approx. runtime | RAM required |
 |-------|----------------|-------------|
 | Stage 1: Clean (Stata) | Several hours | 8+ GB |
-| Stage 2: GIS (Python/ArcPy) | Not reproducible | — |
-| Stage 3: Merge (R) | < 30 minutes | 4 GB |
-| **Stage 4: Analysis (Stata)** | **< 1 hour** | **4 GB** |
-| Stage 5: Figures (R) | < 30 minutes | 4 GB |
-
-*Note: Stage 2 (ArcPy) is not reproducible; derived GIS outputs are provided.*
+| Stage 2: Merge (R) | < 30 minutes | 4 GB |
+| **Stage 3: Analysis (Stata)** | **< 1 hour** | **4 GB** |
+| Stage 4: Figures (R) | < 30 minutes | 4 GB |
 
 ---
 
@@ -131,10 +122,7 @@ code/
 ├── 00_run_all.do          Master runner: sources config.do, runs all stages
 │
 ├── 01_clean/              Stage 1: Raw data cleaning
-│   ├── 01a_gw_depth_stata.do    GW depth: merge GAMA + CNRA, prepare for GIS
-│   ├── 01b_gw_depth_python.py   GW depth: GIS interpolation (ArcPy — see note)
-│   ├── 01c_gw_quality_stata.do  GW quality: merge + prepare for GIS
-│   ├── 01d_gw_quality_python.py GW quality: GIS interpolation (ArcPy)
+│   ├── 01a_gw_depth_stata.do    GW depth: merge GAMA + CNRA periodic level measurements
 │   ├── 01e_weather.do           Weather: degree days + long-term climate
 │   └── 01f_well_completions.R   WCR: permit-to-construction timing figure
 │
@@ -171,20 +159,18 @@ code/
                                                diff_trends_fe.png
 ```
 
-**Note on ArcPy (Stage 2):** Scripts `01b` and `01d` are retained for
-documentation purposes only and **cannot be run**. The derived GIS outputs
-they would produce are provided in `data/derived/gis/` as fixed inputs.
-
 ---
 
 ## Section 4: Instructions to Replicators
 
-### Standard replication (Stages 4–5) — for all replicators
+### Standard replication (Stages 3–4) — for all replicators
 
-Stage 2 (GIS raster interpolation) is not reproducible — derived outputs are
-provided in `data/derived/`. All replicators start at Stage 4.
+Derived intermediate datasets are provided in `data/derived/` (see Section 1),
+so all replicators can start at Stage 3.
 
-1. Obtain derived data from authors and place in `data/derived/`
+1. Download the derived data from
+   [uwmadison.box.com/v/wells-replication-data](https://uwmadison.box.com/v/wells-replication-data)
+   and place the contents in `data/derived/`
 2. Install Stata packages (first run only):
    ```stata
    do code/install_packages.do
@@ -201,18 +187,17 @@ provided in `data/derived/`. All replicators start at Stage 4.
    Rscript code/04_figures/04b_failure_maps.R
    Rscript code/04_figures/04d_descriptive.R
    ```
-   Stages 1–3 are commented out by default; Stages 4–5 run automatically.
+   Stages 1–2 are commented out by default; Stages 3–4 run automatically.
 
-### Optional: Re-run data cleaning (Stages 1, 3)
+### Optional: Re-run data cleaning (Stages 1–2)
 
 If you wish to re-run the Stata cleaning scripts (Stage 1) or the R merge
-pipeline (Stage 3) from raw data, obtain the raw data per `data/raw/README_raw.md`,
+pipeline (Stage 2) from raw data, obtain the raw data per `data/raw/README_raw.md`,
 then uncomment the relevant blocks in `00_run_all.do`.
-Stage 2 (ArcPy GIS) cannot be re-run; use the provided `data/derived/gis/` files.
 
 ### Expected output
 
-After running Stages 4–5, the following files should appear:
+After running Stages 3–4, the following files should appear:
 
 **Tables** (`output/tables/`):
 - `summarystats.tex`
