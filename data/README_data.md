@@ -180,14 +180,3 @@ object after writing this file — reload it to redo those regressions)
 | `GEOID` | float | Census tract identifier from the spatial join |
 | `SB535_tract` | float | SB535 disadvantaged-community tract indicator (1/0) |
 
-## Files Not Referenced by Current Code
-
-The following files exist in `data/derived/` but are not read by any script in
-`code/` as of this package version, so they were left untrimmed. They are
-retained in the distribution for provenance but are not required to reproduce
-any table or figure:
-
-- `all_wells3.dta` (2.1 GB)
-- `all_wells4.dta` (3.0 GB)
-- `dtw_long_diff.dta` (7 MB)
-
